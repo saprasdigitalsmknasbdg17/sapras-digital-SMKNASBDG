@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 SAPRAS Digital - Aplikasi Web Inventaris</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e40af 0%, #7c3aed 50%, #059669 100%);
+        }
+        
+        .app-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .app-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            padding: 1.5rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+            border: 1px solid #e0f2fe;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+        
+        .form-section {
+            background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
+            border: 2px solid #f1f5f9;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .table-row {
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+        }
+        
+        .table-row:hover {
+            background: #f8fafc;
+        }
+        
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-primary {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .logo-upload {
+            border: 3px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .logo-upload:hover {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        }
+        
+        .logo-upload.dragover {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+    <!-- Main App Container -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="app-container max-w-7xl mx-auto">
+            <!-- App Header -->
+            <div class="app-header relative">
+                <div class="flex items-center justify-between relative z-10">
+                    <div class="flex items-center space-x-4">
+                        <div id="schoolLogo" class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">
+                            🏫
+                        </div>
+                        <div>
+                            <h1 class="text-2xl lg:text-3xl font-bold">SAPRAS DIGITAL</h1>
+                            <p class="text-blue-100 text-sm lg:text-base">SMK Nasional Bandung - Sistem Inventaris</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-blue-100">Versi 1.0</div>
+                        <div class="text-xs text-blue-200" id="currentDate"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- App Content -->
+            <div class="p-6 lg:p-8">
+                <!-- Statistics Dashboard -->
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+                    <div class="stats-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Barang</p>
+                                <p class="text-3xl font-bold text-blue-600" id="totalItems">0</p>
+                            </div>
+                            <div class="text-4xl">📦</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Kategori</p>
+                                <p class="text-3xl font-bold text-green-600" id="totalCategories">0</p>
+                            </div>
+                            <div class="text-4xl">🏷️</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Kondisi Baik</p>
+                                <p class="text-3xl font-bold text-emerald-600" id="goodCondition">0</p>
+                            </div>
+                            <div class="text-4xl">✅</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Perlu Perbaikan</p>
+                                <p class="text-3xl font-bold text-amber-600" id="needRepair">0</p>
+                            </div>
+                            <div class="text-4xl">⚠️</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Nilai Aset</p>
+                                <p class="text-2xl font-bold text-purple-600" id="totalValue">Rp 0</p>
+                            </div>
+                            <div class="text-4xl">💰</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logo Upload Section -->
+                <div class="form-section mb-8">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="text-2xl mr-3">📸</span>
+                        Upload Logo Sekolah
+                    </h2>
+                    
+                    <!-- Current Logo Display -->
+                    <div id="currentLogoDisplay" class="mb-4 text-center hidden">
+                        <div class="inline-block p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                            <img id="currentLogoImg" src="" alt="Logo Sekolah" class="max-w-32 max-h-32 object-contain mx-auto">
+                            <p class="text-sm text-gray-600 mt-2">Logo saat ini</p>
+                            <button onclick="removeLogo()" class="mt-2 px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">
+                                🗑️ Hapus Logo
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Simple Upload Button -->
+                    <div class="text-center mb-4">
+                        <button type="button" onclick="document.getElementById('logoInput').click()" class="btn-primary text-lg px-8 py-4">
+                            📂 PILIH LOGO SEKOLAH
+                        </button>
+                        <input type="file" id="logoInput" accept="image/*" class="hidden">
+                    </div>
+                    
+                    <!-- Alternative Upload Methods -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Drag & Drop Area -->
+                        <div class="logo-upload" id="logoUpload">
+                            <div class="text-3xl mb-3">🖼️</div>
+                            <p class="text-gray-600 font-medium mb-2">Seret & Lepas Gambar</p>
+                            <p class="text-xs text-gray-500">Atau klik area ini</p>
+                        </div>
+                        
+                        <!-- Paste Area -->
+                        <div class="logo-upload" id="pasteArea" onclick="focusPasteArea()">
+                            <div class="text-3xl mb-3">📋</div>
+                            <p class="text-gray-600 font-medium mb-2">Paste Gambar</p>
+                            <p class="text-xs text-gray-500">Klik lalu tekan Ctrl+V</p>
+                            <textarea id="pasteInput" class="hidden" placeholder="Klik di sini lalu paste gambar dengan Ctrl+V"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Upload Info -->
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="text-sm text-blue-800">
+                            <strong>📝 Cara Upload Logo:</strong><br>
+                            1️⃣ Klik tombol "PILIH LOGO SEKOLAH" (paling mudah)<br>
+                            2️⃣ Atau seret gambar ke kotak kiri<br>
+                            3️⃣ Atau copy gambar lalu klik kotak kanan dan paste (Ctrl+V)<br><br>
+                            ✅ Format: PNG, JPG, JPEG, GIF | Maksimal: 5MB
+                        </div>
+                    </div>
+                    
+                    <!-- Upload Progress -->
+                    <div id="uploadProgress" class="mt-4 hidden">
+                        <div class="bg-green-100 border border-green-300 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <div class="loading mr-3"></div>
+                                <span class="text-green-700 font-medium">Sedang memproses logo...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Upload Success -->
+                    <div id="uploadSuccess" class="mt-4 hidden">
+                        <div class="bg-green-100 border border-green-300 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-3">✅</span>
+                                <span class="text-green-700 font-medium">Logo berhasil diupload!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Item Form -->
+                <div class="form-section">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-2xl mr-3">➕</span>
+                        Tambah Barang Baru
+                    </h2>
+                    
+                    <form id="itemForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Barang *</label>
+                            <input type="text" id="itemName" class="input-field" placeholder="Contoh: Laptop Dell Inspiron 15" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Kategori *</label>
+                            <select id="itemCategory" class="input-field" required>
+                                <option value="">Pilih Kategori</option>
+                                <option value="ELK">ELK - Elektronik & IT</option>
+                                <option value="EKL">EKL - Elektronik & Kelistrikan</option>
+                                <option value="MBL">MBL - Mebel & Furniture</option>
+                                <option value="OLR">OLR - Olahraga & Kesehatan</option>
+                                <option value="KDR">KDR - Kendaraan & Transportasi</option>
+                                <option value="ATK">ATK - Alat Tulis & Kantor</option>
+                                <option value="KBN">KBN - Kebersihan & Maintenance</option>
+                                <option value="LAB">LAB - Laboratorium & Praktikum</option>
+                                <option value="PRP">PRP - Perpustakaan & Media</option>
+                                <option value="KTR">KTR - Keamanan & Ketertiban</option>
+                                <option value="MSK">MSK - Musik & Seni</option>
+                                <option value="DPR">DPR - Dapur & Konsumsi</option>
+                                <option value="KSH">KSH - Kesehatan & P3K</option>
+                                <option value="BNG">BNG - Bangunan & Infrastruktur</option>
+                                <option value="TXT">TXT - Tekstil & Pakaian</option>
+                                <option value="AGR">AGR - Pertanian & Kebun</option>
+                                <option value="PPU">PPU - Peralatan Praktek Umum</option>
+                                <option value="PPK">PPK - Peralatan Praktek Kejuruan</option>
+                                <option value="AKB">AKB - Alat Kebersihan</option>
+                                <option value="AK3">AK3 - Alat Keamanan & K3</option>
+                                <option value="ABI">ABI - Aset Bangunan Infrastruktur</option>
+                                <option value="PUS">PUS - Perpustakaan</option>
+                                <option value="MPI">MPI - Mading Papan Informasi</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Lokasi *</label>
+                            <select id="itemLocation" class="input-field" required>
+                                <option value="">Pilih Lokasi</option>
+                                <option value="LAB">LAB - Laboratorium</option>
+                                <option value="LAB-MPLB">LAB-MPLB - Lab. Komputer MPLB</option>
+                                <option value="LAB-DKV">LAB-DKV - Lab. Komputer DKV</option>
+                                <option value="LAB-TJKT">LAB-TJKT - Lab. Komputer TJKT</option>
+                                <option value="RGR">RGR - Ruang Guru</option>
+                                <option value="KTR">KTR - Kantor</option>
+                                <option value="KLS">KLS - Ruang Kelas</option>
+                                <option value="X-DKV">X-DKV - R. Kelas X-DKV</option>
+                                <option value="XI-DKV">XI-DKV - R. Kelas XI-DKV</option>
+                                <option value="XII-DKV">XII-DKV - R. Kelas XII-DKV</option>
+                                <option value="X-TJKT">X-TJKT - R. Kelas X-TJKT</option>
+                                <option value="XI-TJKT">XI-TJKT - R. Kelas XI-TJKT</option>
+                                <option value="XII-TJKT">XII-TJKT - R. Kelas XII-TJKT</option>
+                                <option value="X-MPLB">X-MPLB - R. Kelas X-MPLB</option>
+                                <option value="XI-MPLB">XI-MPLB - R. Kelas XI-MPLB</option>
+                                <option value="XII-MPLB">XII-MPLB - R. Kelas XII-MPLB</option>
+                                <option value="PRP">PRP - Perpustakaan</option>
+                                <option value="DPR">DPR - Ruang Dapur</option>
+                                <option value="GDG">GDG - R. Gudang</option>
+                                <option value="AUL">AUL - Aula</option>
+                                <option value="LPG">LPG - Lapangan</option>
+                                <option value="RKR">RKR - Ruang Kreatifitas</option>
+                                <option value="MSH">MSH - Ruang Musholah</option>
+                                <option value="UKS">UKS - Ruang UKS</option>
+                                <option value="BKK">BKK - Ruang BKK</option>
+                                <option value="SL1">SL1 - Ruang Selasar Lt 01</option>
+                                <option value="SL2">SL2 - Ruang Selasar Lt 02</option>
+                                <option value="OFC">OFC - Ruang Office</option>
+                                <option value="POD">POD - R. Podcast Teffa</option>
+                                <option value="PRC">PRC - R. Percetakan Teffa</option>
+                                <option value="VID">VID - R. Video dan Fotography Teffa</option>
+                                <option value="KMT">KMT - R. K-Mart Teffa</option>
+                                <option value="AUL">AUL - Ruang Aula</option>
+                                <option value="WD1">WD1 - Ruang Tempat Wudhu Lt1</option>
+                                <option value="WD2">WD2 - Ruang Wudhu Lt 2</option>
+                                <option value="OSS">OSS - Ruang OSIS</option>
+                                <option value="TMU">TMU - Ruang Tamu</option>
+                                <option value="RCP">RCP - Ruang Resepsion</option>
+                                <option value="TS1">TS1 - Ruang Toilet Siswa</option>
+                                <option value="TS2">TS2 - Ruang Toilet Siswi</option>
+                                <option value="GD1">GD1 - Ruang Gudang 1</option>
+                                <option value="GD2">GD2 - Ruang Gudang 2</option>
+                                <option value="TGP">TGP - Ruang Toilet Guru Pria</option>
+                                <option value="TGW">TGW - Ruang Toilet Guru Putri</option>
+                                <option value="TPP">TPP - Ruang Toilet Perpus</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Kondisi *</label>
+                            <select id="itemCondition" class="input-field" required>
+                                <option value="">Pilih Kondisi</option>
+                                <option value="Baik">Baik</option>
+                                <option value="Rusak Ringan">Rusak Ringan</option>
+                                <option value="Rusak Berat">Rusak Berat</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
+                            <input type="number" id="itemQuantity" class="input-field" placeholder="1" min="1" value="1">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Harga Satuan (Rp) *</label>
+                            <input type="number" id="itemPrice" class="input-field" placeholder="0" min="0" step="1000" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Sumber Dana *</label>
+                            <select id="itemFunding" class="input-field" required>
+                                <option value="">Pilih Sumber Dana</option>
+                                <option value="APBD">APBD - Anggaran Pendapatan Belanja Daerah</option>
+                                <option value="BOS">BOS - Bantuan Operasional Sekolah</option>
+                                <option value="APBN">APBN - Anggaran Pendapatan Belanja Negara</option>
+                                <option value="Hibah">Hibah - Bantuan/Sumbangan</option>
+                                <option value="Swadaya">Swadaya - Dana Mandiri Sekolah</option>
+                                <option value="CSR">CSR - Corporate Social Responsibility</option>
+                                <option value="Komite">Komite - Dana Komite Sekolah</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Keterangan</label>
+                            <input type="text" id="itemNotes" class="input-field" placeholder="Keterangan tambahan (opsional)">
+                        </div>
+                        
+                        <div class="md:col-span-2 lg:col-span-3 flex justify-end">
+                            <button type="submit" class="btn-primary flex items-center space-x-2">
+                                <span>Tambah Barang</span>
+                                <span id="addLoading" class="loading hidden"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Search and Filter Section -->
+                <div class="form-section">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                            <span class="text-2xl mr-3">📋</span>
+                            Daftar Inventaris
+                        </h2>
+                        
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button onclick="exportToCSV()" class="btn-secondary flex items-center space-x-2">
+                                <span>📊</span>
+                                <span>Export CSV</span>
+                            </button>
+                            <button onclick="exportToJSON()" class="btn-secondary flex items-center space-x-2" style="background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);">
+                                <span>📄</span>
+                                <span>Export JSON</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">🔍 Pencarian</label>
+                            <input type="text" id="searchInput" class="input-field" placeholder="Cari nama, kode, atau lokasi...">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">🏷️ Filter Kategori</label>
+                            <select id="categoryFilter" class="input-field">
+                                <option value="">Semua Kategori</option>
+                                <option value="ELK">ELK - Elektronik & IT</option>
+                                <option value="EKL">EKL - Elektronik & Kelistrikan</option>
+                                <option value="MBL">MBL - Mebel & Furniture</option>
+                                <option value="OLR">OLR - Olahraga & Kesehatan</option>
+                                <option value="KDR">KDR - Kendaraan & Transportasi</option>
+                                <option value="ATK">ATK - Alat Tulis & Kantor</option>
+                                <option value="KBN">KBN - Kebersihan & Maintenance</option>
+                                <option value="LAB">LAB - Laboratorium & Praktikum</option>
+                                <option value="PRP">PRP - Perpustakaan & Media</option>
+                                <option value="KTR">KTR - Keamanan & Ketertiban</option>
+                                <option value="MSK">MSK - Musik & Seni</option>
+                                <option value="DPR">DPR - Dapur & Konsumsi</option>
+                                <option value="KSH">KSH - Kesehatan & P3K</option>
+                                <option value="BNG">BNG - Bangunan & Infrastruktur</option>
+                                <option value="TXT">TXT - Tekstil & Pakaian</option>
+                                <option value="AGR">AGR - Pertanian & Kebun</option>
+                                <option value="PPU">PPU - Peralatan Praktek Umum</option>
+                                <option value="PPK">PPK - Peralatan Praktek Kejuruan</option>
+                                <option value="AKB">AKB - Alat Kebersihan</option>
+                                <option value="AK3">AK3 - Alat Keamanan & K3</option>
+                                <option value="ABI">ABI - Aset Bangunan Infrastruktur</option>
+                                <option value="PUS">PUS - Perpustakaan</option>
+                                <option value="MPI">MPI - Mading Papan Informasi</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">⚡ Filter Kondisi</label>
+                            <select id="conditionFilter" class="input-field">
+                                <option value="">Semua Kondisi</option>
+                                <option value="Baik">Baik</option>
+                                <option value="Rusak Ringan">Rusak Ringan</option>
+                                <option value="Rusak Berat">Rusak Berat</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-800">Data Inventaris</h3>
+                            <div class="flex items-center space-x-4">
+                                <select id="sortBy" class="text-sm border border-gray-300 rounded px-2 py-1">
+                                    <option value="date">Urutkan: Tanggal</option>
+                                    <option value="name">Urutkan: Nama</option>
+                                    <option value="code">Urutkan: Kode</option>
+                                    <option value="price">Urutkan: Harga</option>
+                                    <option value="condition">Urutkan: Kondisi</option>
+                                </select>
+                                <span id="itemCount" class="text-sm text-gray-600">0 barang</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Barang</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokasi</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kondisi</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Satuan</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Harga</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sumber Dana</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Items will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="emptyState" class="text-center py-12 hidden">
+                        <div class="text-6xl mb-4">📦</div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada data inventaris</h3>
+                        <p class="text-gray-500">Mulai dengan menambahkan barang pertama Anda</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800">✏️ Edit Data Barang</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <form id="editForm" class="space-y-4">
+                <input type="hidden" id="editItemId">
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Barang</label>
+                    <input type="text" id="editItemName" class="input-field" required>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                        <select id="editItemCategory" class="input-field" required>
+                            <option value="ELK">ELK - Elektronik & IT</option>
+                            <option value="EKL">EKL - Elektronik & Kelistrikan</option>
+                            <option value="MBL">MBL - Mebel & Furniture</option>
+                            <option value="OLR">OLR - Olahraga & Kesehatan</option>
+                            <option value="KDR">KDR - Kendaraan & Transportasi</option>
+                            <option value="ATK">ATK - Alat Tulis & Kantor</option>
+                            <option value="KBN">KBN - Kebersihan & Maintenance</option>
+                            <option value="LAB">LAB - Laboratorium & Praktikum</option>
+                            <option value="PRP">PRP - Perpustakaan & Media</option>
+                            <option value="KTR">KTR - Keamanan & Ketertiban</option>
+                            <option value="MSK">MSK - Musik & Seni</option>
+                            <option value="DPR">DPR - Dapur & Konsumsi</option>
+                            <option value="KSH">KSH - Kesehatan & P3K</option>
+                            <option value="BNG">BNG - Bangunan & Infrastruktur</option>
+                            <option value="TXT">TXT - Tekstil & Pakaian</option>
+                            <option value="AGR">AGR - Pertanian & Kebun</option>
+                            <option value="PPU">PPU - Peralatan Praktek Umum</option>
+                            <option value="PPK">PPK - Peralatan Praktek Kejuruan</option>
+                            <option value="AKB">AKB - Alat Kebersihan</option>
+                            <option value="AK3">AK3 - Alat Keamanan & K3</option>
+                            <option value="ABI">ABI - Aset Bangunan Infrastruktur</option>
+                            <option value="PUS">PUS - Perpustakaan</option>
+                            <option value="MPI">MPI - Mading Papan Informasi</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Lokasi</label>
+                        <select id="editItemLocation" class="input-field" required>
+                            <option value="LAB">LAB - Laboratorium</option>
+                            <option value="LAB-MPLB">LAB-MPLB - Lab. Komputer MPLB</option>
+                            <option value="LAB-DKV">LAB-DKV - Lab. Komputer DKV</option>
+                            <option value="LAB-TJKT">LAB-TJKT - Lab. Komputer TJKT</option>
+                            <option value="RGR">RGR - Ruang Guru</option>
+                            <option value="KTR">KTR - Kantor</option>
+                            <option value="KLS">KLS - Ruang Kelas</option>
+                            <option value="X-DKV">X-DKV - R. Kelas X-DKV</option>
+                            <option value="XI-DKV">XI-DKV - R. Kelas XI-DKV</option>
+                            <option value="XII-DKV">XII-DKV - R. Kelas XII-DKV</option>
+                            <option value="X-TJKT">X-TJKT - R. Kelas X-TJKT</option>
+                            <option value="XI-TJKT">XI-TJKT - R. Kelas XI-TJKT</option>
+                            <option value="XII-TJKT">XII-TJKT - R. Kelas XII-TJKT</option>
+                            <option value="X-MPLB">X-MPLB - R. Kelas X-MPLB</option>
+                            <option value="XI-MPLB">XI-MPLB - R. Kelas XI-MPLB</option>
+                            <option value="XII-MPLB">XII-MPLB - R. Kelas XII-MPLB</option>
+                            <option value="PRP">PRP - Perpustakaan</option>
+                            <option value="DPR">DPR - Ruang Dapur</option>
+                            <option value="GDG">GDG - R. Gudang</option>
+                            <option value="AUL">AUL - Aula</option>
+                            <option value="LPG">LPG - Lapangan</option>
+                            <option value="RKR">RKR - Ruang Kreatifitas</option>
+                            <option value="MSH">MSH - Ruang Musholah</option>
+                            <option value="UKS">UKS - Ruang UKS</option>
+                            <option value="BKK">BKK - Ruang BKK</option>
+                            <option value="SL1">SL1 - Ruang Selasar Lt 01</option>
+                            <option value="SL2">SL2 - Ruang Selasar Lt 02</option>
+                            <option value="OFC">OFC - Ruang Office</option>
+                            <option value="POD">POD - R. Podcast Teffa</option>
+                            <option value="PRC">PRC - R. Percetakan Teffa</option>
+                            <option value="VID">VID - R. Video dan Fotography Teffa</option>
+                            <option value="KMT">KMT - R. K-Mart Teffa</option>
+                            <option value="AUL">AUL - Ruang Aula</option>
+                            <option value="WD1">WD1 - Ruang Tempat Wudhu Lt1</option>
+                            <option value="WD2">WD2 - Ruang Wudhu Lt 2</option>
+                            <option value="OSS">OSS - Ruang OSIS</option>
+                            <option value="TMU">TMU - Ruang Tamu</option>
+                            <option value="RCP">RCP - Ruang Resepsion</option>
+                            <option value="TS1">TS1 - Ruang Toilet Siswa</option>
+                            <option value="TS2">TS2 - Ruang Toilet Siswi</option>
+                            <option value="GD1">GD1 - Ruang Gudang 1</option>
+                            <option value="GD2">GD2 - Ruang Gudang 2</option>
+                            <option value="TGP">TGP - Ruang Toilet Guru Pria</option>
+                            <option value="TGW">TGW - Ruang Toilet Guru Putri</option>
+                            <option value="TPP">TPP - Ruang Toilet Perpus</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Kondisi</label>
+                        <select id="editItemCondition" class="input-field" required>
+                            <option value="Baik">Baik</option>
+                            <option value="Rusak Ringan">Rusak Ringan</option>
+                            <option value="Rusak Berat">Rusak Berat</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
+                        <input type="number" id="editItemQuantity" class="input-field" min="1" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Harga Satuan (Rp)</label>
+                    <input type="number" id="editItemPrice" class="input-field" min="0" step="1000" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Sumber Dana</label>
+                    <select id="editItemFunding" class="input-field" required>
+                        <option value="APBD">APBD - Anggaran Pendapatan Belanja Daerah</option>
+                        <option value="BOS">BOS - Bantuan Operasional Sekolah</option>
+                        <option value="APBN">APBN - Anggaran Pendapatan Belanja Negara</option>
+                        <option value="Hibah">Hibah - Bantuan/Sumbangan</option>
+                        <option value="Swadaya">Swadaya - Dana Mandiri Sekolah</option>
+                        <option value="CSR">CSR - Corporate Social Responsibility</option>
+                        <option value="Komite">Komite - Dana Komite Sekolah</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Keterangan</label>
+                    <input type="text" id="editItemNotes" class="input-field">
+                </div>
+                
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        Update Barang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Global variables
+        let items = [];
+        let schoolLogo = null;
+        let isInitialized = false;
+
+        // Safe localStorage operations
+        function safeGetFromStorage(key, defaultValue = null) {
+            try {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : defaultValue;
+            } catch (error) {
+                console.warn(`Error reading ${key} from localStorage:`, error);
+                return defaultValue;
+            }
+        }
+
+        function safeSaveToStorage(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+                return true;
+            } catch (error) {
+                console.warn(`Error saving ${key} to localStorage:`, error);
+                showNotification('⚠️ Gagal menyimpan data ke penyimpanan lokal', 'error');
+                return false;
+            }
+        }
+
+        // Initialize app with error handling
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                if (!isInitialized) {
+                    initializeApp();
+                    isInitialized = true;
+                }
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                showNotification('❌ Terjadi kesalahan saat memuat aplikasi', 'error');
+            }
+        });
+
+        function initializeApp() {
+            try {
+                // Load data from localStorage safely
+                items = safeGetFromStorage('saprasItems', []);
+                schoolLogo = localStorage.getItem('schoolLogo') || null;
+                
+                // Add some sample data if empty
+                if (items.length === 0) {
+                    const sampleItems = [
+                        {
+                            id: generateId(),
+                            code: 'ELK-001',
+                            name: 'Laptop Dell Inspiron 15',
+                            category: 'ELK',
+                            location: 'LAB',
+                            condition: 'Baik',
+                            quantity: 1,
+                            price: 8500000,
+                            funding: 'BOS',
+                            notes: 'Untuk pembelajaran programming',
+                            date: '2024-01-15'
+                        },
+                        {
+                            id: generateId(),
+                            code: 'MBL-001',
+                            name: 'Meja Kayu Jati',
+                            category: 'MBL',
+                            location: 'RGR',
+                            condition: 'Baik',
+                            quantity: 5,
+                            price: 750000,
+                            funding: 'APBD',
+                            notes: 'Meja guru ruang kelas',
+                            date: '2024-01-15'
+                        },
+                        {
+                            id: generateId(),
+                            code: 'OLR-001',
+                            name: 'Bola Sepak Nike',
+                            category: 'OLR',
+                            location: 'LPG',
+                            condition: 'Rusak Ringan',
+                            quantity: 3,
+                            price: 250000,
+                            funding: 'Swadaya',
+                            notes: 'Perlu dipompa ulang',
+                            date: '2024-01-15'
+                        }
+                    ];
+                    items = sampleItems;
+                    saveItems();
+                }
+                
+                // Initialize UI components
+                loadSchoolLogo();
+                renderItems();
+                updateStatistics();
+                setupEventListeners();
+                updateCurrentDate();
+                
+            } catch (error) {
+                console.error('Error in initializeApp:', error);
+                showNotification('⚠️ Terjadi kesalahan saat memuat data', 'error');
+            }
+        }
+
+        function setupEventListeners() {
+            try {
+                // Form submission with error handling
+                const itemForm = document.getElementById('itemForm');
+                const editForm = document.getElementById('editForm');
+                
+                if (itemForm) itemForm.addEventListener('submit', handleAddItem);
+                if (editForm) editForm.addEventListener('submit', handleEditItem);
+                
+                // Search and filter with error handling
+                const searchInput = document.getElementById('searchInput');
+                const categoryFilter = document.getElementById('categoryFilter');
+                const conditionFilter = document.getElementById('conditionFilter');
+                const sortBy = document.getElementById('sortBy');
+                
+                if (searchInput) searchInput.addEventListener('input', filterItems);
+                if (categoryFilter) categoryFilter.addEventListener('change', filterItems);
+                if (conditionFilter) conditionFilter.addEventListener('change', filterItems);
+                if (sortBy) sortBy.addEventListener('change', sortItems);
+                
+                // Logo upload with error handling
+                const logoInput = document.getElementById('logoInput');
+                if (logoInput) {
+                    logoInput.addEventListener('change', function(e) {
+                        try {
+                            if (e.target.files && e.target.files[0]) {
+                                processLogoFile(e.target.files[0]);
+                            }
+                        } catch (error) {
+                            console.error('Error in logo input change:', error);
+                            showNotification('❌ Gagal memproses file logo', 'error');
+                        }
+                    });
+                }
+                
+                // Drag and drop with error handling
+                const logoUpload = document.getElementById('logoUpload');
+                if (logoUpload) {
+                    // Make it clickable too
+                    logoUpload.addEventListener('click', function() {
+                        document.getElementById('logoInput').click();
+                    });
+                    
+                    logoUpload.addEventListener('dragover', function(e) {
+                        try {
+                            e.preventDefault();
+                            logoUpload.classList.add('dragover');
+                        } catch (error) {
+                            console.error('Error in dragover:', error);
+                        }
+                    });
+                    
+                    logoUpload.addEventListener('dragleave', function(e) {
+                        try {
+                            e.preventDefault();
+                            logoUpload.classList.remove('dragover');
+                        } catch (error) {
+                            console.error('Error in dragleave:', error);
+                        }
+                    });
+                    
+                    logoUpload.addEventListener('drop', function(e) {
+                        try {
+                            e.preventDefault();
+                            logoUpload.classList.remove('dragover');
+                            const files = e.dataTransfer.files;
+                            if (files && files[0]) {
+                                processLogoFile(files[0]);
+                            }
+                        } catch (error) {
+                            console.error('Error in drop:', error);
+                            showNotification('❌ Gagal memproses file yang di-drop', 'error');
+                        }
+                    });
+                }
+                
+                // Paste area handling
+                const pasteInput = document.getElementById('pasteInput');
+                if (pasteInput) {
+                    pasteInput.addEventListener('paste', function(e) {
+                        try {
+                            const clipboardItems = e.clipboardData?.items;
+                            if (clipboardItems) {
+                                for (let item of clipboardItems) {
+                                    if (item.type.indexOf('image') !== -1) {
+                                        const file = item.getAsFile();
+                                        if (file) {
+                                            processLogoFile(file);
+                                            pasteInput.classList.add('hidden');
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error in paste event:', error);
+                            showNotification('❌ Gagal memproses gambar dari clipboard', 'error');
+                        }
+                    });
+                }
+                
+                // Global paste event (fallback)
+                document.addEventListener('paste', function(e) {
+                    try {
+                        // Only process if paste input is focused or no specific input is focused
+                        if (document.activeElement === pasteInput || document.activeElement === document.body) {
+                            const clipboardItems = e.clipboardData?.items;
+                            if (clipboardItems) {
+                                for (let item of clipboardItems) {
+                                    if (item.type.indexOf('image') !== -1) {
+                                        const file = item.getAsFile();
+                                        if (file) {
+                                            processLogoFile(file);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error in global paste event:', error);
+                        showNotification('❌ Gagal memproses gambar dari clipboard', 'error');
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error setting up event listeners:', error);
+                showNotification('⚠️ Beberapa fitur mungkin tidak berfungsi dengan baik', 'error');
+            }
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function generateCode(category) {
+            const categoryItems = items.filter(item => item.category === category);
+            const nextNumber = categoryItems.length + 1;
+            return `${category}-${nextNumber.toString().padStart(3, '0')}`;
+        }
+
+        function handleAddItem(e) {
+            e.preventDefault();
+            
+            try {
+                const loadingSpinner = document.getElementById('addLoading');
+                if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    try {
+                        const category = document.getElementById('itemCategory')?.value;
+                        const name = document.getElementById('itemName')?.value;
+                        const location = document.getElementById('itemLocation')?.value;
+                        const condition = document.getElementById('itemCondition')?.value;
+                        const funding = document.getElementById('itemFunding')?.value;
+                        
+                        if (!category || !name || !location || !condition || !funding) {
+                            throw new Error('Semua field wajib harus diisi');
+                        }
+                        
+                        const newItem = {
+                            id: generateId(),
+                            code: generateCode(category),
+                            name: name,
+                            category: category,
+                            location: location,
+                            condition: condition,
+                            quantity: parseInt(document.getElementById('itemQuantity')?.value) || 1,
+                            price: parseInt(document.getElementById('itemPrice')?.value) || 0,
+                            funding: funding,
+                            notes: document.getElementById('itemNotes')?.value || '',
+                            date: new Date().toISOString().split('T')[0]
+                        };
+                        
+                        items.push(newItem);
+                        
+                        if (saveItems()) {
+                            renderItems();
+                            updateStatistics();
+                            
+                            // Reset form
+                            e.target.reset();
+                            
+                            showNotification('✅ Barang berhasil ditambahkan!', 'success');
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error adding item:', error);
+                        showNotification(`❌ ${error.message}`, 'error');
+                    } finally {
+                        if (loadingSpinner) loadingSpinner.classList.add('hidden');
+                    }
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error in handleAddItem:', error);
+                showNotification('❌ Terjadi kesalahan saat menambah barang', 'error');
+            }
+        }
+
+        function handleEditItem(e) {
+            e.preventDefault();
+            
+            const itemId = document.getElementById('editItemId').value;
+            const itemIndex = items.findIndex(item => item.id === itemId);
+            
+            if (itemIndex !== -1) {
+                items[itemIndex] = {
+                    ...items[itemIndex],
+                    name: document.getElementById('editItemName').value,
+                    category: document.getElementById('editItemCategory').value,
+                    location: document.getElementById('editItemLocation').value,
+                    condition: document.getElementById('editItemCondition').value,
+                    quantity: parseInt(document.getElementById('editItemQuantity').value),
+                    price: parseInt(document.getElementById('editItemPrice').value) || 0,
+                    funding: document.getElementById('editItemFunding').value,
+                    notes: document.getElementById('editItemNotes').value
+                };
+                
+                saveItems();
+                renderItems();
+                updateStatistics();
+                closeEditModal();
+                showNotification('✅ Data barang berhasil diupdate!', 'success');
+            }
+        }
+
+        function editItem(id) {
+            const item = items.find(item => item.id === id);
+            if (item) {
+                document.getElementById('editItemId').value = item.id;
+                document.getElementById('editItemName').value = item.name;
+                document.getElementById('editItemCategory').value = item.category;
+                document.getElementById('editItemLocation').value = item.location;
+                document.getElementById('editItemCondition').value = item.condition;
+                document.getElementById('editItemQuantity').value = item.quantity;
+                document.getElementById('editItemPrice').value = item.price || 0;
+                document.getElementById('editItemFunding').value = item.funding || 'BOS';
+                document.getElementById('editItemNotes').value = item.notes || '';
+                
+                document.getElementById('editModal').classList.add('active');
+            }
+        }
+
+        function deleteItem(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
+                items = items.filter(item => item.id !== id);
+                saveItems();
+                renderItems();
+                updateStatistics();
+                showNotification('🗑️ Barang berhasil dihapus!', 'success');
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        function generateLabel(id) {
+            const item = items.find(item => item.id === id);
+            if (!item) return;
+            
+            const labelWindow = window.open('', '_blank');
+            
+            labelWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Label - ${item.code}</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            margin: 0; 
+                            padding: 20px; 
+                            background: white;
+                        }
+                        .label { 
+                            width: 8cm; 
+                            height: 5cm; 
+                            border: 2px solid #333; 
+                            padding: 10px; 
+                            text-align: center; 
+                            background: white;
+                            box-sizing: border-box;
+                        }
+                        .header { 
+                            font-size: 10px; 
+                            font-weight: bold; 
+                            margin-bottom: 5px; 
+                        }
+                        .barcode { 
+                            margin: 10px 0; 
+                        }
+                        .info { 
+                            font-size: 9px; 
+                            line-height: 1.2; 
+                        }
+                        .code { 
+                            font-weight: bold; 
+                            font-size: 10px; 
+                        }
+                        @media print {
+                            body { margin: 0; padding: 0; }
+                            .label { border: 1px solid #000; }
+                        }
+                    </style>
+                    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+                </head>
+                <body>
+                    <div class="label">
+                        <div class="header">SMK NASIONAL BANDUNG</div>
+                        <div style="font-size: 8px; color: #666; margin-bottom: 8px;">INVENTARIS SARANA & PRASARANA</div>
+                        
+                        <div class="barcode">
+                            <canvas id="barcode"></canvas>
+                        </div>
+                        
+                        <div class="info">
+                            <div style="font-weight: bold; margin-bottom: 2px;">${item.name}</div>
+                            <div>Kode: <span class="code">${item.code}</span></div>
+                            <div>Lokasi: ${item.location}</div>
+                            <div>Kondisi: ${item.condition}</div>
+                            <div>Dana: ${item.funding || 'BOS'}</div>
+                        </div>
+                        
+                        <div style="font-size: 7px; color: #999; margin-top: 8px;">
+                            Generated: ${new Date().toLocaleDateString('id-ID')}
+                        </div>
+                    </div>
+                    
+                    <script>
+                        JsBarcode("#barcode", "${item.code}", {
+                            format: "CODE128",
+                            width: 1.5,
+                            height: 30,
+                            displayValue: false,
+                            margin: 0
+                        });
+                        
+                        setTimeout(() => {
+                            window.print();
+                        }, 1000);
+                    </script>
+                <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96a61e0623b27d66',t:'MTc1NDM5NTA1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+                </html>
+            `);
+        }
+
+        function filterItems() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const conditionFilter = document.getElementById('conditionFilter').value;
+            
+            const filteredItems = items.filter(item => {
+                const matchesSearch = !searchTerm || 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.code.toLowerCase().includes(searchTerm) ||
+                    item.location.toLowerCase().includes(searchTerm) ||
+                    (item.notes && item.notes.toLowerCase().includes(searchTerm));
+                
+                const matchesCategory = !categoryFilter || item.category === categoryFilter;
+                const matchesCondition = !conditionFilter || item.condition === conditionFilter;
+                
+                return matchesSearch && matchesCategory && matchesCondition;
+            });
+            
+            renderItems(filteredItems);
+        }
+
+        function sortItems() {
+            const sortBy = document.getElementById('sortBy').value;
+            const sortedItems = [...items].sort((a, b) => {
+                switch (sortBy) {
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'code':
+                        return a.code.localeCompare(b.code);
+                    case 'price':
+                        return (b.price || 0) - (a.price || 0);
+                    case 'condition':
+                        return a.condition.localeCompare(b.condition);
+                    case 'date':
+                    default:
+                        return new Date(b.date) - new Date(a.date);
+                }
+            });
+            renderItems(sortedItems);
+        }
+
+        function renderItems(itemsToRender = items) {
+            try {
+                const tbody = document.getElementById('itemsTableBody');
+                const emptyState = document.getElementById('emptyState');
+                const itemCount = document.getElementById('itemCount');
+                
+                if (!tbody || !emptyState || !itemCount) {
+                    console.error('Required DOM elements not found');
+                    return;
+                }
+                
+                if (!itemsToRender || itemsToRender.length === 0) {
+                    tbody.innerHTML = '';
+                    emptyState.classList.remove('hidden');
+                    itemCount.textContent = '0 barang';
+                    return;
+                }
+                
+                emptyState.classList.add('hidden');
+                itemCount.textContent = `${itemsToRender.length} barang`;
+                
+                try {
+                    tbody.innerHTML = itemsToRender.map(item => {
+                        if (!item || !item.id) return '';
+                        
+                        return `
+                            <tr class="table-row">
+                                <td class="px-4 py-3 text-sm font-medium text-gray-900">${item.code || 'N/A'}</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">${item.name || 'N/A'}</td>
+                                <td class="px-4 py-3 text-sm">
+                                    <span class="badge badge-${getCategoryColor(item.category)}">${item.category || 'N/A'}</span>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900">${item.location || 'N/A'}</td>
+                                <td class="px-4 py-3 text-sm">
+                                    <span class="badge badge-${getConditionColor(item.condition)}">${item.condition || 'N/A'}</span>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900">${item.quantity || 0}</td>
+                                <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(item.price || 0)}</td>
+                                <td class="px-4 py-3 text-sm text-gray-900 font-bold text-green-600">${formatCurrency((item.price || 0) * (item.quantity || 0))}</td>
+                                <td class="px-4 py-3 text-sm">
+                                    <span class="badge badge-${getFundingColor(item.funding || 'BOS')}">${item.funding || 'BOS'}</span>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-500">${formatDate(item.date)}</td>
+                                <td class="px-4 py-3 text-sm space-x-2">
+                                    <button onclick="editItem('${item.id}')" class="text-blue-600 hover:text-blue-800 font-medium">
+                                        ✏️ Edit
+                                    </button>
+                                    <button onclick="deleteItem('${item.id}')" class="text-red-600 hover:text-red-800 font-medium">
+                                        🗑️ Hapus
+                                    </button>
+                                    <button onclick="generateLabel('${item.id}')" class="text-green-600 hover:text-green-800 font-medium">
+                                        🏷️ Label
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).filter(row => row !== '').join('');
+                } catch (renderError) {
+                    console.error('Error rendering table rows:', renderError);
+                    tbody.innerHTML = '<tr><td colspan="11" class="px-4 py-8 text-center text-red-600">❌ Terjadi kesalahan saat menampilkan data</td></tr>';
+                }
+                
+            } catch (error) {
+                console.error('Error in renderItems:', error);
+                showNotification('⚠️ Terjadi kesalahan saat menampilkan data', 'error');
+            }
+        }
+
+        function getCategoryColor(category) {
+            const colors = {
+                'ELK': 'primary', 'EKL': 'warning', 'MBL': 'success', 'OLR': 'warning',
+                'KDR': 'danger', 'ATK': 'primary', 'KBN': 'success', 'LAB': 'warning',
+                'PRP': 'danger', 'KTR': 'primary', 'MSK': 'success', 'DPR': 'warning',
+                'KSH': 'danger', 'BNG': 'primary', 'TXT': 'success', 'AGR': 'warning',
+                'PPU': 'primary', 'PPK': 'success', 'AKB': 'warning', 'AK3': 'danger',
+                'ABI': 'primary', 'PUS': 'success', 'MPI': 'warning'
+            };
+            return colors[category] || 'primary';
+        }
+
+        function getConditionColor(condition) {
+            const colors = {
+                'Baik': 'success',
+                'Rusak Ringan': 'warning',
+                'Rusak Berat': 'danger'
+            };
+            return colors[condition] || 'primary';
+        }
+
+        function getFundingColor(funding) {
+            const colors = {
+                'APBD': 'primary', 'BOS': 'success', 'APBN': 'warning',
+                'Hibah': 'danger', 'Swadaya': 'primary', 'CSR': 'success',
+                'Komite': 'warning', 'Lainnya': 'danger'
+            };
+            return colors[funding] || 'primary';
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('id-ID');
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function updateStatistics() {
+            const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+            const categories = [...new Set(items.map(item => item.category))].length;
+            const goodCondition = items.filter(item => item.condition === 'Baik').reduce((sum, item) => sum + item.quantity, 0);
+            const needRepair = items.filter(item => item.condition !== 'Baik').reduce((sum, item) => sum + item.quantity, 0);
+            const totalValue = items.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
+            
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('totalCategories').textContent = categories;
+            document.getElementById('goodCondition').textContent = goodCondition;
+            document.getElementById('needRepair').textContent = needRepair;
+            document.getElementById('totalValue').textContent = formatCurrency(totalValue);
+        }
+
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', options);
+        }
+
+        // Logo functions
+        function processLogoFile(file) {
+            const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+            if (!validTypes.includes(file.type.toLowerCase())) {
+                showNotification('❌ File harus berupa gambar! (PNG, JPG, JPEG, GIF)', 'error');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('❌ Ukuran file maksimal 5MB!', 'error');
+                return;
+            }
+            
+            const uploadProgress = document.getElementById('uploadProgress');
+            const uploadSuccess = document.getElementById('uploadSuccess');
+            
+            // Show progress
+            uploadProgress.classList.remove('hidden');
+            uploadSuccess.classList.add('hidden');
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const imageData = event.target.result;
+                    
+                    // Create image to validate
+                    const img = new Image();
+                    img.onload = function() {
+                        try {
+                            localStorage.setItem('schoolLogo', imageData);
+                            schoolLogo = imageData;
+                            updateLogoDisplay();
+                            
+                            // Hide progress, show success
+                            uploadProgress.classList.add('hidden');
+                            uploadSuccess.classList.remove('hidden');
+                            
+                            // Hide success after 3 seconds
+                            setTimeout(() => {
+                                uploadSuccess.classList.add('hidden');
+                            }, 3000);
+                            
+                            showNotification('✅ Logo berhasil diupload!', 'success');
+                        } catch (error) {
+                            uploadProgress.classList.add('hidden');
+                            showNotification('❌ Gagal menyimpan logo!', 'error');
+                        }
+                    };
+                    
+                    img.onerror = function() {
+                        uploadProgress.classList.add('hidden');
+                        showNotification('❌ File gambar tidak valid!', 'error');
+                    };
+                    
+                    img.src = imageData;
+                    
+                } catch (error) {
+                    uploadProgress.classList.add('hidden');
+                    showNotification('❌ Gagal memproses logo!', 'error');
+                }
+            };
+            
+            reader.onerror = function() {
+                uploadProgress.classList.add('hidden');
+                showNotification('❌ Gagal membaca file!', 'error');
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        function focusPasteArea() {
+            const pasteInput = document.getElementById('pasteInput');
+            pasteInput.classList.remove('hidden');
+            pasteInput.focus();
+            pasteInput.style.position = 'absolute';
+            pasteInput.style.left = '-9999px';
+            pasteInput.style.opacity = '0';
+        }
+        
+        function updateLogoDisplay() {
+            const logoElement = document.getElementById('schoolLogo');
+            const currentLogoDisplay = document.getElementById('currentLogoDisplay');
+            const currentLogoImg = document.getElementById('currentLogoImg');
+            
+            if (schoolLogo) {
+                logoElement.innerHTML = `<img src="${schoolLogo}" alt="Logo Sekolah" class="w-full h-full object-cover rounded-full">`;
+                currentLogoImg.src = schoolLogo;
+                currentLogoDisplay.classList.remove('hidden');
+            } else {
+                logoElement.innerHTML = '🏫';
+                currentLogoDisplay.classList.add('hidden');
+            }
+        }
+
+        function loadSchoolLogo() {
+            schoolLogo = localStorage.getItem('schoolLogo');
+            updateLogoDisplay();
+        }
+        
+        function removeLogo() {
+            if (confirm('Apakah Anda yakin ingin menghapus logo?')) {
+                schoolLogo = null;
+                localStorage.removeItem('schoolLogo');
+                loadSchoolLogo();
+                showNotification('🗑️ Logo berhasil dihapus!', 'success');
+            }
+        }
+
+        // Export functions
+        function exportToCSV() {
+            const headers = ['Kode', 'Nama', 'Kategori', 'Lokasi', 'Kondisi', 'Jumlah', 'Harga Satuan', 'Total Harga', 'Sumber Dana', 'Keterangan', 'Tanggal'];
+            const csvContent = [
+                headers.join(','),
+                ...items.map(item => [
+                    item.code,
+                    `"${item.name}"`,
+                    item.category,
+                    item.location,
+                    item.condition,
+                    item.quantity,
+                    item.price || 0,
+                    (item.price || 0) * item.quantity,
+                    item.funding || 'BOS',
+                    `"${item.notes || ''}"`,
+                    item.date
+                ].join(','))
+            ].join('\n');
+            
+            copyToClipboard(csvContent, 'CSV');
+        }
+
+        function exportToJSON() {
+            const jsonContent = JSON.stringify(items, null, 2);
+            copyToClipboard(jsonContent, 'JSON');
+        }
+
+        function copyToClipboard(data, format) {
+            try {
+                navigator.clipboard.writeText(data);
+                showNotification(`📋 Data ${format} berhasil disalin ke clipboard!`, 'success');
+            } catch (err) {
+                const textArea = document.createElement('textarea');
+                textArea.value = data;
+                textArea.style.position = 'fixed';
+                textArea.style.top = '50%';
+                textArea.style.left = '50%';
+                textArea.style.transform = 'translate(-50%, -50%)';
+                textArea.style.width = '80%';
+                textArea.style.height = '60%';
+                textArea.style.zIndex = '9999';
+                textArea.style.background = 'white';
+                textArea.style.border = '2px solid #3b82f6';
+                textArea.style.borderRadius = '8px';
+                textArea.style.padding = '1rem';
+                textArea.style.fontSize = '12px';
+                textArea.style.fontFamily = 'monospace';
+                
+                document.body.appendChild(textArea);
+                textArea.select();
+                textArea.focus();
+                
+                showNotification(`📋 Silakan copy manual data ${format} dari text area!`, 'success');
+                
+                setTimeout(() => {
+                    if (document.body.contains(textArea)) {
+                        document.body.removeChild(textArea);
+                    }
+                }, 10000);
+            }
+        }
+
+        // Utility functions
+        function saveItems() {
+            try {
+                return safeSaveToStorage('saprasItems', items);
+            } catch (error) {
+                console.error('Error saving items:', error);
+                showNotification('❌ Gagal menyimpan data!', 'error');
+                return false;
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('editModal');
+            if (e.target === modal) {
+                closeEditModal();
+            }
+        });
+    </script>
+</body>
+</html>
