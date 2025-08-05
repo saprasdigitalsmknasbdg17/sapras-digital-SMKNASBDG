@@ -294,6 +294,33 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
+        .edit-mode {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+        }
+        
+        .edit-mode .app-header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .btn-edit-active {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+        }
+        
+        .btn-edit-active span:first-child::after {
+            content: ' ❌';
+        }
+        
+        .save-success {
+            animation: saveSuccess 0.6s ease-out;
+        }
+        
+        @keyframes saveSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
@@ -392,59 +419,32 @@
                         </div>
                     </div>
                     
-                    <!-- Simple Upload Button -->
-                    <div class="text-center mb-4">
-                        <button type="button" onclick="document.getElementById('logoInput').click()" class="btn-primary text-lg px-8 py-4">
-                            📂 PILIH LOGO SEKOLAH
+                    <!-- Upload Area -->
+                    <div class="logo-upload" id="logoUpload">
+                        <div class="text-4xl mb-4">🖼️</div>
+                        <p class="text-gray-600 font-medium mb-3">📁 KLIK DI SINI UNTUK PILIH LOGO</p>
+                        <p class="text-sm text-gray-500 mb-3">Atau seret & lepas file gambar di area ini</p>
+                        
+                        <!-- Visible Upload Button -->
+                        <button type="button" onclick="document.getElementById('logoInput').click()" class="btn-primary mb-3">
+                            📂 Pilih File Logo
                         </button>
-                        <input type="file" id="logoInput" accept="image/*" class="hidden">
-                    </div>
-                    
-                    <!-- Alternative Upload Methods -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Drag & Drop Area -->
-                        <div class="logo-upload" id="logoUpload">
-                            <div class="text-3xl mb-3">🖼️</div>
-                            <p class="text-gray-600 font-medium mb-2">Seret & Lepas Gambar</p>
-                            <p class="text-xs text-gray-500">Atau klik area ini</p>
+                        
+                        <div class="text-xs text-gray-400">
+                            ✅ Format: PNG, JPG, JPEG, GIF<br>
+                            ✅ Ukuran maksimal: 5MB<br>
+                            ✅ Bisa juga paste dengan Ctrl+V
                         </div>
                         
-                        <!-- Paste Area -->
-                        <div class="logo-upload" id="pasteArea" onclick="focusPasteArea()">
-                            <div class="text-3xl mb-3">📋</div>
-                            <p class="text-gray-600 font-medium mb-2">Paste Gambar</p>
-                            <p class="text-xs text-gray-500">Klik lalu tekan Ctrl+V</p>
-                            <textarea id="pasteInput" class="hidden" placeholder="Klik di sini lalu paste gambar dengan Ctrl+V"></textarea>
-                        </div>
-                    </div>
-                    
-                    <!-- Upload Info -->
-                    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <div class="text-sm text-blue-800">
-                            <strong>📝 Cara Upload Logo:</strong><br>
-                            1️⃣ Klik tombol "PILIH LOGO SEKOLAH" (paling mudah)<br>
-                            2️⃣ Atau seret gambar ke kotak kiri<br>
-                            3️⃣ Atau copy gambar lalu klik kotak kanan dan paste (Ctrl+V)<br><br>
-                            ✅ Format: PNG, JPG, JPEG, GIF | Maksimal: 5MB
-                        </div>
+                        <input type="file" id="logoInput" accept="image/*,.png,.jpg,.jpeg,.gif" class="hidden">
                     </div>
                     
                     <!-- Upload Progress -->
                     <div id="uploadProgress" class="mt-4 hidden">
-                        <div class="bg-green-100 border border-green-300 rounded-lg p-4">
+                        <div class="bg-blue-100 border border-blue-300 rounded-lg p-3">
                             <div class="flex items-center">
                                 <div class="loading mr-3"></div>
-                                <span class="text-green-700 font-medium">Sedang memproses logo...</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Upload Success -->
-                    <div id="uploadSuccess" class="mt-4 hidden">
-                        <div class="bg-green-100 border border-green-300 rounded-lg p-4">
-                            <div class="flex items-center">
-                                <span class="text-2xl mr-3">✅</span>
-                                <span class="text-green-700 font-medium">Logo berhasil diupload!</span>
+                                <span class="text-blue-700 font-medium">Mengupload logo...</span>
                             </div>
                         </div>
                     </div>
@@ -603,6 +603,14 @@
                         </h2>
                         
                         <div class="flex flex-col sm:flex-row gap-3">
+                            <button id="editModeBtn" onclick="toggleEditMode()" class="btn-secondary flex items-center space-x-2" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                                <span>✏️</span>
+                                <span>Mode Edit</span>
+                            </button>
+                            <button id="saveDataBtn" onclick="saveAllData()" class="btn-secondary flex items-center space-x-2" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+                                <span>💾</span>
+                                <span>Simpan Data</span>
+                            </button>
                             <button onclick="exportToCSV()" class="btn-secondary flex items-center space-x-2">
                                 <span>📊</span>
                                 <span>Export CSV</span>
@@ -659,6 +667,36 @@
                                 <option value="Rusak Berat">Rusak Berat</option>
                             </select>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Features Section -->
+                <div class="form-section">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-2xl mr-3">⚡</span>
+                        Fitur Lanjutan
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <button onclick="openBulkImport()" class="btn-secondary flex items-center justify-center space-x-2 p-4" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                            <span>📥</span>
+                            <span>Import Data</span>
+                        </button>
+                        
+                        <button onclick="openReportGenerator()" class="btn-secondary flex items-center justify-center space-x-2 p-4" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+                            <span>📊</span>
+                            <span>Generate Laporan</span>
+                        </button>
+                        
+                        <button onclick="openMaintenanceSchedule()" class="btn-secondary flex items-center justify-center space-x-2 p-4" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            <span>🔧</span>
+                            <span>Jadwal Maintenance</span>
+                        </button>
+                        
+                        <button onclick="openQRScanner()" class="btn-secondary flex items-center justify-center space-x-2 p-4" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            <span>📱</span>
+                            <span>QR Scanner</span>
+                        </button>
                     </div>
                 </div>
 
@@ -863,245 +901,298 @@
         </div>
     </div>
 
+    <!-- Bulk Import Modal -->
+    <div id="bulkImportModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800">📥 Import Data Massal</h3>
+                <button onclick="closeBulkImportModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Format CSV</label>
+                    <div class="bg-gray-50 p-3 rounded-lg text-xs font-mono">
+                        Nama,Kategori,Lokasi,Kondisi,Jumlah,Harga,Sumber Dana,Keterangan<br>
+                        "Laptop Dell","ELK","LAB","Baik",1,8500000,"BOS","Untuk pembelajaran"
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Paste Data CSV</label>
+                    <textarea id="csvData" class="input-field h-32" placeholder="Paste data CSV di sini..."></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeBulkImportModal()" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                        Batal
+                    </button>
+                    <button onclick="processBulkImport()" class="btn-primary">
+                        Import Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Generator Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800">📊 Generate Laporan</h3>
+                <button onclick="closeReportModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Laporan</label>
+                    <select id="reportType" class="input-field">
+                        <option value="summary">Ringkasan Inventaris</option>
+                        <option value="category">Laporan per Kategori</option>
+                        <option value="location">Laporan per Lokasi</option>
+                        <option value="condition">Laporan Kondisi Barang</option>
+                        <option value="value">Laporan Nilai Aset</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Format Output</label>
+                    <select id="reportFormat" class="input-field">
+                        <option value="html">HTML (Print)</option>
+                        <option value="csv">CSV</option>
+                        <option value="json">JSON</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeReportModal()" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    Batal
+                </button>
+                <button onclick="generateReport()" class="btn-primary">
+                    Generate Laporan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maintenance Schedule Modal -->
+    <div id="maintenanceModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800">🔧 Jadwal Maintenance</h3>
+                <button onclick="closeMaintenanceModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <div class="mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="stats-card">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-red-600" id="urgentMaintenance">0</div>
+                            <div class="text-sm text-gray-600">Perlu Segera</div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-yellow-600" id="scheduledMaintenance">0</div>
+                            <div class="text-sm text-gray-600">Terjadwal</div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600" id="completedMaintenance">0</div>
+                            <div class="text-sm text-gray-600">Selesai</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="maintenanceList" class="space-y-3 max-h-96 overflow-y-auto">
+                <!-- Maintenance items will be populated here -->
+            </div>
+            
+            <div class="flex justify-end mt-6">
+                <button onclick="closeMaintenanceModal()" class="btn-primary">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Scanner Modal -->
+    <div id="qrScannerModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800">📱 QR Code Scanner</h3>
+                <button onclick="closeQRScannerModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <div class="text-center space-y-4">
+                <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8">
+                    <div class="text-6xl mb-4">📱</div>
+                    <p class="text-gray-600 mb-4">Fitur QR Scanner akan tersedia dalam versi mendatang</p>
+                    <p class="text-sm text-gray-500">Saat ini Anda dapat menggunakan pencarian manual atau filter untuk menemukan barang</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Atau masukkan kode barang manual</label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="manualCode" class="input-field flex-1" placeholder="Contoh: ELK-001">
+                        <button onclick="searchByCode()" class="btn-primary">
+                            Cari
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification -->
     <div id="notification" class="notification"></div>
 
     <script>
         // Global variables
-        let items = [];
-        let schoolLogo = null;
-        let isInitialized = false;
+        let items = JSON.parse(localStorage.getItem('saprasItems')) || [];
+        let schoolLogo = localStorage.getItem('schoolLogo') || null;
+        let editingItemId = null;
+        let isEditMode = false;
 
-        // Safe localStorage operations
-        function safeGetFromStorage(key, defaultValue = null) {
-            try {
-                const item = localStorage.getItem(key);
-                return item ? JSON.parse(item) : defaultValue;
-            } catch (error) {
-                console.warn(`Error reading ${key} from localStorage:`, error);
-                return defaultValue;
-            }
-        }
-
-        function safeSaveToStorage(key, value) {
-            try {
-                localStorage.setItem(key, JSON.stringify(value));
-                return true;
-            } catch (error) {
-                console.warn(`Error saving ${key} to localStorage:`, error);
-                showNotification('⚠️ Gagal menyimpan data ke penyimpanan lokal', 'error');
-                return false;
-            }
-        }
-
-        // Initialize app with error handling
+        // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            try {
-                if (!isInitialized) {
-                    initializeApp();
-                    isInitialized = true;
-                }
-            } catch (error) {
-                console.error('Error initializing app:', error);
-                showNotification('❌ Terjadi kesalahan saat memuat aplikasi', 'error');
-            }
+            initializeApp();
+            loadSchoolLogo();
+            renderItems();
+            updateStatistics();
+            setupEventListeners();
+            updateCurrentDate();
         });
 
         function initializeApp() {
-            try {
-                // Load data from localStorage safely
-                items = safeGetFromStorage('saprasItems', []);
-                schoolLogo = localStorage.getItem('schoolLogo') || null;
-                
-                // Add some sample data if empty
-                if (items.length === 0) {
-                    const sampleItems = [
-                        {
-                            id: generateId(),
-                            code: 'ELK-001',
-                            name: 'Laptop Dell Inspiron 15',
-                            category: 'ELK',
-                            location: 'LAB',
-                            condition: 'Baik',
-                            quantity: 1,
-                            price: 8500000,
-                            funding: 'BOS',
-                            notes: 'Untuk pembelajaran programming',
-                            date: '2024-01-15'
-                        },
-                        {
-                            id: generateId(),
-                            code: 'MBL-001',
-                            name: 'Meja Kayu Jati',
-                            category: 'MBL',
-                            location: 'RGR',
-                            condition: 'Baik',
-                            quantity: 5,
-                            price: 750000,
-                            funding: 'APBD',
-                            notes: 'Meja guru ruang kelas',
-                            date: '2024-01-15'
-                        },
-                        {
-                            id: generateId(),
-                            code: 'OLR-001',
-                            name: 'Bola Sepak Nike',
-                            category: 'OLR',
-                            location: 'LPG',
-                            condition: 'Rusak Ringan',
-                            quantity: 3,
-                            price: 250000,
-                            funding: 'Swadaya',
-                            notes: 'Perlu dipompa ulang',
-                            date: '2024-01-15'
-                        }
-                    ];
-                    items = sampleItems;
-                    saveItems();
-                }
-                
-                // Initialize UI components
-                loadSchoolLogo();
-                renderItems();
-                updateStatistics();
-                setupEventListeners();
-                updateCurrentDate();
-                
-            } catch (error) {
-                console.error('Error in initializeApp:', error);
-                showNotification('⚠️ Terjadi kesalahan saat memuat data', 'error');
+            // Add some sample data if empty
+            if (items.length === 0) {
+                const sampleItems = [
+                    {
+                        id: generateId(),
+                        code: 'ELK-001',
+                        name: 'Laptop Dell Inspiron 15',
+                        category: 'ELK',
+                        location: 'LAB',
+                        condition: 'Baik',
+                        quantity: 1,
+                        price: 8500000,
+                        funding: 'BOS',
+                        notes: 'Untuk pembelajaran programming',
+                        date: '2024-01-15'
+                    },
+                    {
+                        id: generateId(),
+                        code: 'MBL-001',
+                        name: 'Meja Kayu Jati',
+                        category: 'MBL',
+                        location: 'RGR',
+                        condition: 'Baik',
+                        quantity: 5,
+                        price: 750000,
+                        funding: 'APBD',
+                        notes: 'Meja guru ruang kelas',
+                        date: '2024-01-15'
+                    },
+                    {
+                        id: generateId(),
+                        code: 'OLR-001',
+                        name: 'Bola Sepak Nike',
+                        category: 'OLR',
+                        location: 'LPG',
+                        condition: 'Rusak Ringan',
+                        quantity: 3,
+                        price: 250000,
+                        funding: 'Swadaya',
+                        notes: 'Perlu dipompa ulang',
+                        date: '2024-01-15'
+                    }
+                ];
+                items = sampleItems;
+                saveItems();
             }
         }
 
         function setupEventListeners() {
-            try {
-                // Form submission with error handling
-                const itemForm = document.getElementById('itemForm');
-                const editForm = document.getElementById('editForm');
-                
-                if (itemForm) itemForm.addEventListener('submit', handleAddItem);
-                if (editForm) editForm.addEventListener('submit', handleEditItem);
-                
-                // Search and filter with error handling
-                const searchInput = document.getElementById('searchInput');
-                const categoryFilter = document.getElementById('categoryFilter');
-                const conditionFilter = document.getElementById('conditionFilter');
-                const sortBy = document.getElementById('sortBy');
-                
-                if (searchInput) searchInput.addEventListener('input', filterItems);
-                if (categoryFilter) categoryFilter.addEventListener('change', filterItems);
-                if (conditionFilter) conditionFilter.addEventListener('change', filterItems);
-                if (sortBy) sortBy.addEventListener('change', sortItems);
-                
-                // Logo upload with error handling
-                const logoInput = document.getElementById('logoInput');
-                if (logoInput) {
-                    logoInput.addEventListener('change', function(e) {
-                        try {
-                            if (e.target.files && e.target.files[0]) {
-                                processLogoFile(e.target.files[0]);
-                            }
-                        } catch (error) {
-                            console.error('Error in logo input change:', error);
-                            showNotification('❌ Gagal memproses file logo', 'error');
-                        }
-                    });
+            // Form submission
+            document.getElementById('itemForm').addEventListener('submit', handleAddItem);
+            document.getElementById('editForm').addEventListener('submit', handleEditItem);
+            
+            // Search and filter
+            document.getElementById('searchInput').addEventListener('input', filterItems);
+            document.getElementById('categoryFilter').addEventListener('change', filterItems);
+            document.getElementById('conditionFilter').addEventListener('change', filterItems);
+            document.getElementById('sortBy').addEventListener('change', sortItems);
+            
+            // Logo upload - Fixed implementation
+            const logoUpload = document.getElementById('logoUpload');
+            const logoInput = document.getElementById('logoInput');
+            
+            // Click anywhere in upload area to trigger file selection
+            logoUpload.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Upload area clicked');
+                logoInput.click();
+            });
+            
+            // File input change event
+            logoInput.addEventListener('change', function(e) {
+                console.log('File input changed');
+                if (e.target.files && e.target.files[0]) {
+                    handleLogoUpload(e.target.files[0]);
                 }
+            });
+            
+            // Drag and drop events
+            logoUpload.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                logoUpload.classList.add('dragover');
+                console.log('Drag over');
+            });
+            
+            logoUpload.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                logoUpload.classList.remove('dragover');
+                console.log('Drag leave');
+            });
+            
+            logoUpload.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                logoUpload.classList.remove('dragover');
+                console.log('File dropped');
                 
-                // Drag and drop with error handling
-                const logoUpload = document.getElementById('logoUpload');
-                if (logoUpload) {
-                    // Make it clickable too
-                    logoUpload.addEventListener('click', function() {
-                        document.getElementById('logoInput').click();
-                    });
-                    
-                    logoUpload.addEventListener('dragover', function(e) {
-                        try {
-                            e.preventDefault();
-                            logoUpload.classList.add('dragover');
-                        } catch (error) {
-                            console.error('Error in dragover:', error);
-                        }
-                    });
-                    
-                    logoUpload.addEventListener('dragleave', function(e) {
-                        try {
-                            e.preventDefault();
-                            logoUpload.classList.remove('dragover');
-                        } catch (error) {
-                            console.error('Error in dragleave:', error);
-                        }
-                    });
-                    
-                    logoUpload.addEventListener('drop', function(e) {
-                        try {
-                            e.preventDefault();
-                            logoUpload.classList.remove('dragover');
-                            const files = e.dataTransfer.files;
-                            if (files && files[0]) {
-                                processLogoFile(files[0]);
-                            }
-                        } catch (error) {
-                            console.error('Error in drop:', error);
-                            showNotification('❌ Gagal memproses file yang di-drop', 'error');
-                        }
-                    });
+                const files = e.dataTransfer.files;
+                if (files && files[0]) {
+                    handleLogoUpload(files[0]);
                 }
-                
-                // Paste area handling
-                const pasteInput = document.getElementById('pasteInput');
-                if (pasteInput) {
-                    pasteInput.addEventListener('paste', function(e) {
-                        try {
-                            const clipboardItems = e.clipboardData?.items;
-                            if (clipboardItems) {
-                                for (let item of clipboardItems) {
-                                    if (item.type.indexOf('image') !== -1) {
-                                        const file = item.getAsFile();
-                                        if (file) {
-                                            processLogoFile(file);
-                                            pasteInput.classList.add('hidden');
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (error) {
-                            console.error('Error in paste event:', error);
-                            showNotification('❌ Gagal memproses gambar dari clipboard', 'error');
-                        }
-                    });
-                }
-                
-                // Global paste event (fallback)
-                document.addEventListener('paste', function(e) {
-                    try {
-                        // Only process if paste input is focused or no specific input is focused
-                        if (document.activeElement === pasteInput || document.activeElement === document.body) {
-                            const clipboardItems = e.clipboardData?.items;
-                            if (clipboardItems) {
-                                for (let item of clipboardItems) {
-                                    if (item.type.indexOf('image') !== -1) {
-                                        const file = item.getAsFile();
-                                        if (file) {
-                                            processLogoFile(file);
-                                            break;
-                                        }
-                                    }
-                                }
+            });
+            
+            // Paste event for logo
+            document.addEventListener('paste', function(e) {
+                const items = e.clipboardData?.items;
+                if (items) {
+                    for (let item of items) {
+                        if (item.type.indexOf('image') !== -1) {
+                            const file = item.getAsFile();
+                            if (file) {
+                                handleLogoUpload(file);
+                                break;
                             }
                         }
-                    } catch (error) {
-                        console.error('Error in global paste event:', error);
-                        showNotification('❌ Gagal memproses gambar dari clipboard', 'error');
                     }
-                });
-                
-            } catch (error) {
-                console.error('Error setting up event listeners:', error);
-                showNotification('⚠️ Beberapa fitur mungkin tidak berfungsi dengan baik', 'error');
-            }
+                }
+            });
+            
+            // Prevent default drag behaviors on document
+            document.addEventListener('dragover', (e) => e.preventDefault());
+            document.addEventListener('drop', (e) => e.preventDefault());
         }
 
         function generateId() {
@@ -1117,60 +1208,38 @@
         function handleAddItem(e) {
             e.preventDefault();
             
-            try {
-                const loadingSpinner = document.getElementById('addLoading');
-                if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+            const loadingSpinner = document.getElementById('addLoading');
+            loadingSpinner.classList.remove('hidden');
+            
+            setTimeout(() => {
+                const formData = new FormData(e.target);
+                const category = document.getElementById('itemCategory').value;
                 
-                setTimeout(() => {
-                    try {
-                        const category = document.getElementById('itemCategory')?.value;
-                        const name = document.getElementById('itemName')?.value;
-                        const location = document.getElementById('itemLocation')?.value;
-                        const condition = document.getElementById('itemCondition')?.value;
-                        const funding = document.getElementById('itemFunding')?.value;
-                        
-                        if (!category || !name || !location || !condition || !funding) {
-                            throw new Error('Semua field wajib harus diisi');
-                        }
-                        
-                        const newItem = {
-                            id: generateId(),
-                            code: generateCode(category),
-                            name: name,
-                            category: category,
-                            location: location,
-                            condition: condition,
-                            quantity: parseInt(document.getElementById('itemQuantity')?.value) || 1,
-                            price: parseInt(document.getElementById('itemPrice')?.value) || 0,
-                            funding: funding,
-                            notes: document.getElementById('itemNotes')?.value || '',
-                            date: new Date().toISOString().split('T')[0]
-                        };
-                        
-                        items.push(newItem);
-                        
-                        if (saveItems()) {
-                            renderItems();
-                            updateStatistics();
-                            
-                            // Reset form
-                            e.target.reset();
-                            
-                            showNotification('✅ Barang berhasil ditambahkan!', 'success');
-                        }
-                        
-                    } catch (error) {
-                        console.error('Error adding item:', error);
-                        showNotification(`❌ ${error.message}`, 'error');
-                    } finally {
-                        if (loadingSpinner) loadingSpinner.classList.add('hidden');
-                    }
-                }, 500);
+                const newItem = {
+                    id: generateId(),
+                    code: generateCode(category),
+                    name: document.getElementById('itemName').value,
+                    category: category,
+                    location: document.getElementById('itemLocation').value,
+                    condition: document.getElementById('itemCondition').value,
+                    quantity: parseInt(document.getElementById('itemQuantity').value) || 1,
+                    price: parseInt(document.getElementById('itemPrice').value) || 0,
+                    funding: document.getElementById('itemFunding').value,
+                    notes: document.getElementById('itemNotes').value,
+                    date: new Date().toISOString().split('T')[0]
+                };
                 
-            } catch (error) {
-                console.error('Error in handleAddItem:', error);
-                showNotification('❌ Terjadi kesalahan saat menambah barang', 'error');
-            }
+                items.push(newItem);
+                saveItems();
+                renderItems();
+                updateStatistics();
+                
+                // Reset form
+                e.target.reset();
+                
+                loadingSpinner.classList.add('hidden');
+                showNotification('Barang berhasil ditambahkan!', 'success');
+            }, 1000);
         }
 
         function handleEditItem(e) {
@@ -1196,7 +1265,7 @@
                 renderItems();
                 updateStatistics();
                 closeEditModal();
-                showNotification('✅ Data barang berhasil diupdate!', 'success');
+                showNotification('Data barang berhasil diupdate!', 'success');
             }
         }
 
@@ -1223,7 +1292,7 @@
                 saveItems();
                 renderItems();
                 updateStatistics();
-                showNotification('🗑️ Barang berhasil dihapus!', 'success');
+                showNotification('Barang berhasil dihapus!', 'success');
             }
         }
 
@@ -1236,6 +1305,7 @@
             if (!item) return;
             
             const labelWindow = window.open('', '_blank');
+            const logoSrc = schoolLogo || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTIiIGZpbGw9IiMzQjgyRjYiLz4KPHN2ZyB4PSIxNiIgeT0iMTYiIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xMiAzbDggNHY2YzAgNS41NS0zLjg0IDEwLjc0LTkgMTItNS4xNi0xLjI2LTktNi40NS05LTEyVjdsOC00eiIvPgo8L3N2Zz4KPC9zdmc+';
             
             labelWindow.document.write(`
                 <!DOCTYPE html>
@@ -1262,6 +1332,11 @@
                             font-size: 10px; 
                             font-weight: bold; 
                             margin-bottom: 5px; 
+                        }
+                        .logo { 
+                            width: 30px; 
+                            height: 30px; 
+                            margin: 0 auto 5px; 
                         }
                         .barcode { 
                             margin: 10px 0; 
@@ -1316,7 +1391,7 @@
                             window.print();
                         }, 1000);
                     </script>
-                <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96a61e0623b27d66',t:'MTc1NDM5NTA1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+                <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96a563a0624d9b07',t:'MTc1NDM4NzQxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
                 </html>
             `);
         }
@@ -1342,102 +1417,79 @@
             renderItems(filteredItems);
         }
 
-        function sortItems() {
-            const sortBy = document.getElementById('sortBy').value;
-            const sortedItems = [...items].sort((a, b) => {
-                switch (sortBy) {
-                    case 'name':
-                        return a.name.localeCompare(b.name);
-                    case 'code':
-                        return a.code.localeCompare(b.code);
-                    case 'price':
-                        return (b.price || 0) - (a.price || 0);
-                    case 'condition':
-                        return a.condition.localeCompare(b.condition);
-                    case 'date':
-                    default:
-                        return new Date(b.date) - new Date(a.date);
-                }
-            });
-            renderItems(sortedItems);
-        }
-
         function renderItems(itemsToRender = items) {
-            try {
-                const tbody = document.getElementById('itemsTableBody');
-                const emptyState = document.getElementById('emptyState');
-                const itemCount = document.getElementById('itemCount');
-                
-                if (!tbody || !emptyState || !itemCount) {
-                    console.error('Required DOM elements not found');
-                    return;
-                }
-                
-                if (!itemsToRender || itemsToRender.length === 0) {
-                    tbody.innerHTML = '';
-                    emptyState.classList.remove('hidden');
-                    itemCount.textContent = '0 barang';
-                    return;
-                }
-                
-                emptyState.classList.add('hidden');
-                itemCount.textContent = `${itemsToRender.length} barang`;
-                
-                try {
-                    tbody.innerHTML = itemsToRender.map(item => {
-                        if (!item || !item.id) return '';
-                        
-                        return `
-                            <tr class="table-row">
-                                <td class="px-4 py-3 text-sm font-medium text-gray-900">${item.code || 'N/A'}</td>
-                                <td class="px-4 py-3 text-sm text-gray-900">${item.name || 'N/A'}</td>
-                                <td class="px-4 py-3 text-sm">
-                                    <span class="badge badge-${getCategoryColor(item.category)}">${item.category || 'N/A'}</span>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-900">${item.location || 'N/A'}</td>
-                                <td class="px-4 py-3 text-sm">
-                                    <span class="badge badge-${getConditionColor(item.condition)}">${item.condition || 'N/A'}</span>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-900">${item.quantity || 0}</td>
-                                <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(item.price || 0)}</td>
-                                <td class="px-4 py-3 text-sm text-gray-900 font-bold text-green-600">${formatCurrency((item.price || 0) * (item.quantity || 0))}</td>
-                                <td class="px-4 py-3 text-sm">
-                                    <span class="badge badge-${getFundingColor(item.funding || 'BOS')}">${item.funding || 'BOS'}</span>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-500">${formatDate(item.date)}</td>
-                                <td class="px-4 py-3 text-sm space-x-2">
-                                    <button onclick="editItem('${item.id}')" class="text-blue-600 hover:text-blue-800 font-medium">
-                                        ✏️ Edit
-                                    </button>
-                                    <button onclick="deleteItem('${item.id}')" class="text-red-600 hover:text-red-800 font-medium">
-                                        🗑️ Hapus
-                                    </button>
-                                    <button onclick="generateLabel('${item.id}')" class="text-green-600 hover:text-green-800 font-medium">
-                                        🏷️ Label
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    }).filter(row => row !== '').join('');
-                } catch (renderError) {
-                    console.error('Error rendering table rows:', renderError);
-                    tbody.innerHTML = '<tr><td colspan="11" class="px-4 py-8 text-center text-red-600">❌ Terjadi kesalahan saat menampilkan data</td></tr>';
-                }
-                
-            } catch (error) {
-                console.error('Error in renderItems:', error);
-                showNotification('⚠️ Terjadi kesalahan saat menampilkan data', 'error');
+            const tbody = document.getElementById('itemsTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const itemCount = document.getElementById('itemCount');
+            
+            if (itemsToRender.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                itemCount.textContent = '0 barang';
+                return;
             }
+            
+            emptyState.classList.add('hidden');
+            itemCount.textContent = `${itemsToRender.length} barang`;
+            
+            tbody.innerHTML = itemsToRender.map(item => `
+                <tr class="table-row">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">${item.code}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${item.name}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="badge badge-${getCategoryColor(item.category)}">${item.category}</span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${item.location}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="badge badge-${getConditionColor(item.condition)}">${item.condition}</span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${item.quantity}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(item.price || 0)}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 font-bold text-green-600">${formatCurrency((item.price || 0) * item.quantity)}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="badge badge-${getFundingColor(item.funding || 'BOS')}">${item.funding || 'BOS'}</span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${formatDate(item.date)}</td>
+                    <td class="px-4 py-3 text-sm space-x-2">
+                        <button onclick="editItem('${item.id}')" class="text-blue-600 hover:text-blue-800 font-medium">
+                            ✏️ Edit
+                        </button>
+                        <button onclick="deleteItem('${item.id}')" class="text-red-600 hover:text-red-800 font-medium">
+                            🗑️ Hapus
+                        </button>
+                        <button onclick="generateLabel('${item.id}')" class="text-green-600 hover:text-green-800 font-medium">
+                            🏷️ Label
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         function getCategoryColor(category) {
             const colors = {
-                'ELK': 'primary', 'EKL': 'warning', 'MBL': 'success', 'OLR': 'warning',
-                'KDR': 'danger', 'ATK': 'primary', 'KBN': 'success', 'LAB': 'warning',
-                'PRP': 'danger', 'KTR': 'primary', 'MSK': 'success', 'DPR': 'warning',
-                'KSH': 'danger', 'BNG': 'primary', 'TXT': 'success', 'AGR': 'warning',
-                'PPU': 'primary', 'PPK': 'success', 'AKB': 'warning', 'AK3': 'danger',
-                'ABI': 'primary', 'PUS': 'success', 'MPI': 'warning'
+                'ELK': 'primary',
+                'EKL': 'warning',
+                'MBL': 'success',
+                'OLR': 'warning',
+                'KDR': 'danger',
+                'ATK': 'primary',
+                'KBN': 'success',
+                'LAB': 'warning',
+                'PRP': 'danger',
+                'KTR': 'primary',
+                'MSK': 'success',
+                'DPR': 'warning',
+                'KSH': 'danger',
+                'BNG': 'primary',
+                'TXT': 'success',
+                'AGR': 'warning',
+                'PPU': 'primary',
+                'PPK': 'success',
+                'AKB': 'warning',
+                'AK3': 'danger',
+                'ABI': 'primary',
+                'PUS': 'success',
+                'MPI': 'warning'
             };
             return colors[category] || 'primary';
         }
@@ -1453,9 +1505,14 @@
 
         function getFundingColor(funding) {
             const colors = {
-                'APBD': 'primary', 'BOS': 'success', 'APBN': 'warning',
-                'Hibah': 'danger', 'Swadaya': 'primary', 'CSR': 'success',
-                'Komite': 'warning', 'Lainnya': 'danger'
+                'APBD': 'primary',
+                'BOS': 'success',
+                'APBN': 'warning',
+                'Hibah': 'danger',
+                'Swadaya': 'primary',
+                'CSR': 'success',
+                'Komite': 'warning',
+                'Lainnya': 'danger'
             };
             return colors[funding] || 'primary';
         }
@@ -1498,103 +1555,131 @@
             document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', options);
         }
 
-        // Logo functions
+        // Logo upload functions
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.currentTarget.classList.add('dragover');
+            console.log('Drag over detected');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.currentTarget.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.currentTarget.classList.remove('dragover');
+            
+            console.log('Drop detected');
+            const files = e.dataTransfer.files;
+            console.log('Files dropped:', files.length);
+            
+            if (files.length > 0) {
+                const file = files[0];
+                console.log('Processing dropped file:', file.name);
+                processLogoFile(file);
+            }
+        }
+
+        function handleLogoUpload(file) {
+            console.log('Processing logo file:', file ? file.name : 'no file');
+            if (file) {
+                processLogoFile(file);
+            }
+        }
+
+        function handlePaste(e) {
+            const items = e.clipboardData.items;
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    const file = item.getAsFile();
+                    processLogoFile(file);
+                    break;
+                }
+            }
+        }
+
         function processLogoFile(file) {
+            console.log('Processing file:', file.name, file.type, file.size);
+            
+            // Validate file type
             const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
             if (!validTypes.includes(file.type.toLowerCase())) {
-                showNotification('❌ File harus berupa gambar! (PNG, JPG, JPEG, GIF)', 'error');
+                showNotification('❌ File harus berupa gambar! (PNG, JPG, JPEG, GIF, WebP)', 'error');
                 return;
             }
             
+            // Validate file size (5MB max)
             if (file.size > 5 * 1024 * 1024) {
                 showNotification('❌ Ukuran file maksimal 5MB!', 'error');
                 return;
             }
             
+            // Show upload progress
             const uploadProgress = document.getElementById('uploadProgress');
-            const uploadSuccess = document.getElementById('uploadSuccess');
-            
-            // Show progress
             uploadProgress.classList.remove('hidden');
-            uploadSuccess.classList.add('hidden');
             
+            // Create FileReader
             const reader = new FileReader();
+            
             reader.onload = function(event) {
                 try {
                     const imageData = event.target.result;
+                    console.log('Image data loaded, length:', imageData.length);
                     
-                    // Create image to validate
-                    const img = new Image();
-                    img.onload = function() {
-                        try {
-                            localStorage.setItem('schoolLogo', imageData);
-                            schoolLogo = imageData;
-                            updateLogoDisplay();
-                            
-                            // Hide progress, show success
-                            uploadProgress.classList.add('hidden');
-                            uploadSuccess.classList.remove('hidden');
-                            
-                            // Hide success after 3 seconds
-                            setTimeout(() => {
-                                uploadSuccess.classList.add('hidden');
-                            }, 3000);
-                            
-                            showNotification('✅ Logo berhasil diupload!', 'success');
-                        } catch (error) {
-                            uploadProgress.classList.add('hidden');
-                            showNotification('❌ Gagal menyimpan logo!', 'error');
-                        }
-                    };
+                    // Save to localStorage
+                    schoolLogo = imageData;
+                    localStorage.setItem('schoolLogo', schoolLogo);
                     
-                    img.onerror = function() {
-                        uploadProgress.classList.add('hidden');
-                        showNotification('❌ File gambar tidak valid!', 'error');
-                    };
+                    // Update display
+                    loadSchoolLogo();
                     
-                    img.src = imageData;
+                    // Hide progress and show success
+                    uploadProgress.classList.add('hidden');
+                    showNotification('✅ Logo berhasil diupload!', 'success');
+                    
+                    console.log('Logo saved successfully');
                     
                 } catch (error) {
+                    console.error('Error saving logo:', error);
                     uploadProgress.classList.add('hidden');
-                    showNotification('❌ Gagal memproses logo!', 'error');
+                    showNotification('❌ Gagal menyimpan logo: ' + error.message, 'error');
                 }
             };
             
-            reader.onerror = function() {
+            reader.onerror = function(error) {
+                console.error('FileReader error:', error);
                 uploadProgress.classList.add('hidden');
                 showNotification('❌ Gagal membaca file!', 'error');
             };
             
+            // Start reading the file
             reader.readAsDataURL(file);
         }
-        
-        function focusPasteArea() {
-            const pasteInput = document.getElementById('pasteInput');
-            pasteInput.classList.remove('hidden');
-            pasteInput.focus();
-            pasteInput.style.position = 'absolute';
-            pasteInput.style.left = '-9999px';
-            pasteInput.style.opacity = '0';
-        }
-        
-        function updateLogoDisplay() {
+
+        function loadSchoolLogo() {
             const logoElement = document.getElementById('schoolLogo');
             const currentLogoDisplay = document.getElementById('currentLogoDisplay');
             const currentLogoImg = document.getElementById('currentLogoImg');
             
             if (schoolLogo) {
+                // Update header logo
                 logoElement.innerHTML = `<img src="${schoolLogo}" alt="Logo Sekolah" class="w-full h-full object-cover rounded-full">`;
+                
+                // Show current logo display
                 currentLogoImg.src = schoolLogo;
                 currentLogoDisplay.classList.remove('hidden');
+                
+                console.log('Logo loaded successfully');
             } else {
+                // Reset to default
                 logoElement.innerHTML = '🏫';
                 currentLogoDisplay.classList.add('hidden');
             }
-        }
-
-        function loadSchoolLogo() {
-            schoolLogo = localStorage.getItem('schoolLogo');
-            updateLogoDisplay();
         }
         
         function removeLogo() {
@@ -1626,58 +1711,86 @@
                 ].join(','))
             ].join('\n');
             
-            copyToClipboard(csvContent, 'CSV');
+            // Create text area for user to copy
+            const textArea = document.createElement('textarea');
+            textArea.value = csvContent;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '50%';
+            textArea.style.left = '50%';
+            textArea.style.transform = 'translate(-50%, -50%)';
+            textArea.style.width = '80%';
+            textArea.style.height = '60%';
+            textArea.style.zIndex = '9999';
+            textArea.style.background = 'white';
+            textArea.style.border = '2px solid #3b82f6';
+            textArea.style.borderRadius = '8px';
+            textArea.style.padding = '1rem';
+            textArea.style.fontSize = '12px';
+            textArea.style.fontFamily = 'monospace';
+            
+            document.body.appendChild(textArea);
+            textArea.select();
+            textArea.focus();
+            
+            // Try to copy to clipboard
+            try {
+                navigator.clipboard.writeText(csvContent);
+                showNotification('Data CSV berhasil disalin ke clipboard!', 'success');
+            } catch (err) {
+                showNotification('Silakan copy manual data CSV dari text area!', 'success');
+            }
+            
+            // Remove text area after 10 seconds
+            setTimeout(() => {
+                if (document.body.contains(textArea)) {
+                    document.body.removeChild(textArea);
+                }
+            }, 10000);
         }
 
         function exportToJSON() {
             const jsonContent = JSON.stringify(items, null, 2);
-            copyToClipboard(jsonContent, 'JSON');
-        }
-
-        function copyToClipboard(data, format) {
+            
+            // Create text area for user to copy
+            const textArea = document.createElement('textarea');
+            textArea.value = jsonContent;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '50%';
+            textArea.style.left = '50%';
+            textArea.style.transform = 'translate(-50%, -50%)';
+            textArea.style.width = '80%';
+            textArea.style.height = '60%';
+            textArea.style.zIndex = '9999';
+            textArea.style.background = 'white';
+            textArea.style.border = '2px solid #7c3aed';
+            textArea.style.borderRadius = '8px';
+            textArea.style.padding = '1rem';
+            textArea.style.fontSize = '12px';
+            textArea.style.fontFamily = 'monospace';
+            
+            document.body.appendChild(textArea);
+            textArea.select();
+            textArea.focus();
+            
+            // Try to copy to clipboard
             try {
-                navigator.clipboard.writeText(data);
-                showNotification(`📋 Data ${format} berhasil disalin ke clipboard!`, 'success');
+                navigator.clipboard.writeText(jsonContent);
+                showNotification('Backup JSON berhasil disalin ke clipboard!', 'success');
             } catch (err) {
-                const textArea = document.createElement('textarea');
-                textArea.value = data;
-                textArea.style.position = 'fixed';
-                textArea.style.top = '50%';
-                textArea.style.left = '50%';
-                textArea.style.transform = 'translate(-50%, -50%)';
-                textArea.style.width = '80%';
-                textArea.style.height = '60%';
-                textArea.style.zIndex = '9999';
-                textArea.style.background = 'white';
-                textArea.style.border = '2px solid #3b82f6';
-                textArea.style.borderRadius = '8px';
-                textArea.style.padding = '1rem';
-                textArea.style.fontSize = '12px';
-                textArea.style.fontFamily = 'monospace';
-                
-                document.body.appendChild(textArea);
-                textArea.select();
-                textArea.focus();
-                
-                showNotification(`📋 Silakan copy manual data ${format} dari text area!`, 'success');
-                
-                setTimeout(() => {
-                    if (document.body.contains(textArea)) {
-                        document.body.removeChild(textArea);
-                    }
-                }, 10000);
+                showNotification('Silakan copy manual data JSON dari text area!', 'success');
             }
+            
+            // Remove text area after 10 seconds
+            setTimeout(() => {
+                if (document.body.contains(textArea)) {
+                    document.body.removeChild(textArea);
+                }
+            }, 10000);
         }
 
         // Utility functions
         function saveItems() {
-            try {
-                return safeSaveToStorage('saprasItems', items);
-            } catch (error) {
-                console.error('Error saving items:', error);
-                showNotification('❌ Gagal menyimpan data!', 'error');
-                return false;
-            }
+            localStorage.setItem('saprasItems', JSON.stringify(items));
         }
 
         function showNotification(message, type = 'success') {
@@ -1697,6 +1810,557 @@
                 closeEditModal();
             }
         });
-    </script>
-</body>
-</html>
+
+        // Edit Mode Functions
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const appContainer = document.querySelector('.app-container');
+            const editBtn = document.getElementById('editModeBtn');
+            const editBtnText = editBtn.querySelector('span:last-child');
+            
+            if (isEditMode) {
+                appContainer.classList.add('edit-mode');
+                editBtn.classList.add('btn-edit-active');
+                editBtnText.textContent = 'Keluar Edit';
+                showNotification('Mode Edit Aktif - Anda dapat mengedit data', 'success');
+            } else {
+                appContainer.classList.remove('edit-mode');
+                editBtn.classList.remove('btn-edit-active');
+                editBtnText.textContent = 'Mode Edit';
+                showNotification('Mode Edit Dinonaktifkan', 'success');
+            }
+        }
+        
+        function saveAllData() {
+            const saveBtn = document.getElementById('saveDataBtn');
+            const originalText = saveBtn.querySelector('span:last-child').textContent;
+            
+            // Show loading state
+            saveBtn.querySelector('span:last-child').textContent = 'Menyimpan...';
+            saveBtn.disabled = true;
+            
+            // Simulate save process
+            setTimeout(() => {
+                // Save to localStorage (already done automatically, but we can add backup)
+                try {
+                    localStorage.setItem('saprasItems', JSON.stringify(items));
+                    localStorage.setItem('saprasBackup', JSON.stringify({
+                        items: items,
+                        timestamp: new Date().toISOString(),
+                        version: '1.0'
+                    }));
+                    
+                    // Success animation
+                    saveBtn.classList.add('save-success');
+                    saveBtn.querySelector('span:last-child').textContent = 'Tersimpan!';
+                    
+                    setTimeout(() => {
+                        saveBtn.classList.remove('save-success');
+                        saveBtn.querySelector('span:last-child').textContent = originalText;
+                        saveBtn.disabled = false;
+                    }, 2000);
+                    
+                    showNotification('Semua data berhasil disimpan!', 'success');
+                    
+                } catch (error) {
+                    saveBtn.querySelector('span:last-child').textContent = 'Gagal!';
+                    setTimeout(() => {
+                        saveBtn.querySelector('span:last-child').textContent = originalText;
+                        saveBtn.disabled = false;
+                    }, 2000);
+                    
+                    showNotification('Gagal menyimpan data!', 'error');
+                }
+            }, 1500);
+        }
+
+        // Advanced Features Functions
+        function openBulkImport() {
+            document.getElementById('bulkImportModal').classList.add('active');
+        }
+        
+        function closeBulkImportModal() {
+            document.getElementById('bulkImportModal').classList.remove('active');
+            document.getElementById('csvData').value = '';
+        }
+        
+        function processBulkImport() {
+            const csvData = document.getElementById('csvData').value.trim();
+            if (!csvData) {
+                showNotification('Silakan masukkan data CSV!', 'error');
+                return;
+            }
+            
+            try {
+                const lines = csvData.split('\n');
+                let importedCount = 0;
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    // Parse CSV line (simple parsing)
+                    const values = line.split(',').map(val => val.replace(/"/g, '').trim());
+                    
+                    if (values.length >= 6) {
+                        const category = values[1] || 'ELK';
+                        const newItem = {
+                            id: generateId(),
+                            code: generateCode(category),
+                            name: values[0] || 'Barang Baru',
+                            category: category,
+                            location: values[2] || 'LAB',
+                            condition: values[3] || 'Baik',
+                            quantity: parseInt(values[4]) || 1,
+                            price: parseInt(values[5]) || 0,
+                            funding: values[6] || 'BOS',
+                            notes: values[7] || '',
+                            date: new Date().toISOString().split('T')[0]
+                        };
+                        
+                        items.push(newItem);
+                        importedCount++;
+                    }
+                }
+                
+                if (importedCount > 0) {
+                    saveItems();
+                    renderItems();
+                    updateStatistics();
+                    closeBulkImportModal();
+                    showNotification(`Berhasil import ${importedCount} barang!`, 'success');
+                } else {
+                    showNotification('Tidak ada data valid untuk diimport!', 'error');
+                }
+                
+            } catch (error) {
+                showNotification('Error parsing CSV: ' + error.message, 'error');
+            }
+        }
+        
+        function openReportGenerator() {
+            document.getElementById('reportModal').classList.add('active');
+        }
+        
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('active');
+        }
+        
+        function generateReport() {
+            const reportType = document.getElementById('reportType').value;
+            const reportFormat = document.getElementById('reportFormat').value;
+            
+            let reportData = '';
+            let reportTitle = '';
+            
+            switch (reportType) {
+                case 'summary':
+                    reportTitle = 'Ringkasan Inventaris';
+                    reportData = generateSummaryReport();
+                    break;
+                case 'category':
+                    reportTitle = 'Laporan per Kategori';
+                    reportData = generateCategoryReport();
+                    break;
+                case 'location':
+                    reportTitle = 'Laporan per Lokasi';
+                    reportData = generateLocationReport();
+                    break;
+                case 'condition':
+                    reportTitle = 'Laporan Kondisi Barang';
+                    reportData = generateConditionReport();
+                    break;
+                case 'value':
+                    reportTitle = 'Laporan Nilai Aset';
+                    reportData = generateValueReport();
+                    break;
+            }
+            
+            if (reportFormat === 'html') {
+                openReportWindow(reportTitle, reportData);
+            } else if (reportFormat === 'csv') {
+                copyToClipboard(reportData, 'CSV');
+            } else if (reportFormat === 'json') {
+                copyToClipboard(JSON.stringify(reportData, null, 2), 'JSON');
+            }
+            
+            closeReportModal();
+        }
+        
+        function generateSummaryReport() {
+            const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+            const totalValue = items.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
+            const categories = [...new Set(items.map(item => item.category))];
+            const locations = [...new Set(items.map(item => item.location))];
+            
+            return `
+                <div class="report-summary">
+                    <h2>Ringkasan Inventaris</h2>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <strong>Total Barang:</strong> ${totalItems} unit
+                        </div>
+                        <div class="stat-item">
+                            <strong>Total Nilai Aset:</strong> ${formatCurrency(totalValue)}
+                        </div>
+                        <div class="stat-item">
+                            <strong>Jumlah Kategori:</strong> ${categories.length}
+                        </div>
+                        <div class="stat-item">
+                            <strong>Jumlah Lokasi:</strong> ${locations.length}
+                        </div>
+                    </div>
+                    
+                    <h3>Detail per Kategori</h3>
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Kategori</th>
+                                <th>Jumlah Barang</th>
+                                <th>Total Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${categories.map(cat => {
+                                const catItems = items.filter(item => item.category === cat);
+                                const catTotal = catItems.reduce((sum, item) => sum + item.quantity, 0);
+                                const catValue = catItems.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
+                                return `
+                                    <tr>
+                                        <td>${cat}</td>
+                                        <td>${catTotal}</td>
+                                        <td>${formatCurrency(catValue)}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        function generateCategoryReport() {
+            const categories = [...new Set(items.map(item => item.category))];
+            
+            return categories.map(category => {
+                const categoryItems = items.filter(item => item.category === category);
+                const totalValue = categoryItems.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
+                
+                return `
+                    <div class="category-section">
+                        <h3>Kategori: ${category}</h3>
+                        <p><strong>Total Barang:</strong> ${categoryItems.length} jenis, ${categoryItems.reduce((sum, item) => sum + item.quantity, 0)} unit</p>
+                        <p><strong>Total Nilai:</strong> ${formatCurrency(totalValue)}</p>
+                        
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama</th>
+                                    <th>Lokasi</th>
+                                    <th>Kondisi</th>
+                                    <th>Jumlah</th>
+                                    <th>Harga</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${categoryItems.map(item => `
+                                    <tr>
+                                        <td>${item.code}</td>
+                                        <td>${item.name}</td>
+                                        <td>${item.location}</td>
+                                        <td>${item.condition}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>${formatCurrency(item.price || 0)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function generateLocationReport() {
+            const locations = [...new Set(items.map(item => item.location))];
+            
+            return locations.map(location => {
+                const locationItems = items.filter(item => item.location === location);
+                const totalValue = locationItems.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
+                
+                return `
+                    <div class="location-section">
+                        <h3>Lokasi: ${location}</h3>
+                        <p><strong>Total Barang:</strong> ${locationItems.length} jenis, ${locationItems.reduce((sum, item) => sum + item.quantity, 0)} unit</p>
+                        <p><strong>Total Nilai:</strong> ${formatCurrency(totalValue)}</p>
+                        
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama</th>
+                                    <th>Kategori</th>
+                                    <th>Kondisi</th>
+                                    <th>Jumlah</th>
+                                    <th>Harga</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${locationItems.map(item => `
+                                    <tr>
+                                        <td>${item.code}</td>
+                                        <td>${item.name}</td>
+                                        <td>${item.category}</td>
+                                        <td>${item.condition}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>${formatCurrency(item.price || 0)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function generateConditionReport() {
+            const conditions = ['Baik', 'Rusak Ringan', 'Rusak Berat'];
+            
+            return conditions.map(condition => {
+                const conditionItems = items.filter(item => item.condition === condition);
+                const totalValue = conditionItems.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
+                
+                return `
+                    <div class="condition-section">
+                        <h3>Kondisi: ${condition}</h3>
+                        <p><strong>Total Barang:</strong> ${conditionItems.length} jenis, ${conditionItems.reduce((sum, item) => sum + item.quantity, 0)} unit</p>
+                        <p><strong>Total Nilai:</strong> ${formatCurrency(totalValue)}</p>
+                        
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama</th>
+                                    <th>Kategori</th>
+                                    <th>Lokasi</th>
+                                    <th>Jumlah</th>
+                                    <th>Harga</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${conditionItems.map(item => `
+                                    <tr>
+                                        <td>${item.code}</td>
+                                        <td>${item.name}</td>
+                                        <td>${item.category}</td>
+                                        <td>${item.location}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>${formatCurrency(item.price || 0)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function generateValueReport() {
+            const sortedItems = [...items].sort((a, b) => ((b.price || 0) * b.quantity) - ((a.price || 0) * a.quantity));
+            const totalValue = items.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
+            
+            return `
+                <div class="value-report">
+                    <h2>Laporan Nilai Aset</h2>
+                    <p><strong>Total Nilai Keseluruhan:</strong> ${formatCurrency(totalValue)}</p>
+                    
+                    <h3>Barang dengan Nilai Tertinggi</h3>
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Ranking</th>
+                                <th>Kode</th>
+                                <th>Nama</th>
+                                <th>Kategori</th>
+                                <th>Lokasi</th>
+                                <th>Jumlah</th>
+                                <th>Harga Satuan</th>
+                                <th>Total Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sortedItems.map((item, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.code}</td>
+                                    <td>${item.name}</td>
+                                    <td>${item.category}</td>
+                                    <td>${item.location}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${formatCurrency(item.price || 0)}</td>
+                                    <td><strong>${formatCurrency((item.price || 0) * item.quantity)}</strong></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        function openReportWindow(title, content) {
+            const reportWindow = window.open('', '_blank');
+            reportWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${title} - SAPRAS Digital</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            margin: 20px; 
+                            line-height: 1.6;
+                        }
+                        .report-header {
+                            text-align: center;
+                            border-bottom: 2px solid #333;
+                            padding-bottom: 20px;
+                            margin-bottom: 30px;
+                        }
+                        .report-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }
+                        .report-table th,
+                        .report-table td {
+                            border: 1px solid #ddd;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        .report-table th {
+                            background-color: #f2f2f2;
+                            font-weight: bold;
+                        }
+                        .summary-stats {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                            gap: 15px;
+                            margin: 20px 0;
+                        }
+                        .stat-item {
+                            padding: 15px;
+                            background: #f8f9fa;
+                            border-radius: 5px;
+                            border-left: 4px solid #007bff;
+                        }
+                        .category-section,
+                        .location-section,
+                        .condition-section {
+                            margin: 30px 0;
+                            page-break-inside: avoid;
+                        }
+                        @media print {
+                            body { margin: 0; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="report-header">
+                        <h1>SMK NASIONAL BANDUNG</h1>
+                        <h2>${title}</h2>
+                        <p>Generated on: ${new Date().toLocaleDateString('id-ID', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        })}</p>
+                    </div>
+                    
+                    ${content}
+                    
+                    <div class="no-print" style="margin-top: 30px; text-align: center;">
+                        <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            🖨️ Print Laporan
+                        </button>
+                    </div>
+                </body>
+                </html>
+            `);
+        }
+        
+        function copyToClipboard(data, format) {
+            try {
+                navigator.clipboard.writeText(data);
+                showNotification(`Data ${format} berhasil disalin ke clipboard!`, 'success');
+            } catch (err) {
+                // Fallback method
+                const textArea = document.createElement('textarea');
+                textArea.value = data;
+                textArea.style.position = 'fixed';
+                textArea.style.top = '50%';
+                textArea.style.left = '50%';
+                textArea.style.transform = 'translate(-50%, -50%)';
+                textArea.style.width = '80%';
+                textArea.style.height = '60%';
+                textArea.style.zIndex = '9999';
+                textArea.style.background = 'white';
+                textArea.style.border = '2px solid #3b82f6';
+                textArea.style.borderRadius = '8px';
+                textArea.style.padding = '1rem';
+                
+                document.body.appendChild(textArea);
+                textArea.select();
+                textArea.focus();
+                
+                showNotification(`Silakan copy manual data ${format} dari text area!`, 'success');
+                
+                setTimeout(() => {
+                    if (document.body.contains(textArea)) {
+                        document.body.removeChild(textArea);
+                    }
+                }, 10000);
+            }
+        }
+        
+        function openMaintenanceSchedule() {
+            document.getElementById('maintenanceModal').classList.add('active');
+            generateMaintenanceSchedule();
+        }
+        
+        function closeMaintenanceModal() {
+            document.getElementById('maintenanceModal').classList.remove('active');
+        }
+        
+        function generateMaintenanceSchedule() {
+            const maintenanceList = document.getElementById('maintenanceList');
+            const urgentItems = items.filter(item => item.condition === 'Rusak Berat');
+            const scheduledItems = items.filter(item => item.condition === 'Rusak Ringan');
+            const goodItems = items.filter(item => item.condition === 'Baik');
+            
+            document.getElementById('urgentMaintenance').textContent = urgentItems.length;
+            document.getElementById('scheduledMaintenance').textContent = scheduledItems.length;
+            document.getElementById('completedMaintenance').textContent = goodItems.length;
+            
+            const allMaintenanceItems = [
+                ...urgentItems.map(item => ({ ...item, priority: 'urgent', status: 'Perlu Segera' })),
+                ...scheduledItems.map(item => ({ ...item, priority: 'scheduled', status: 'Terjadwal' })),
+                ...goodItems.slice(0, 5).map(item => ({ ...item, priority: 'completed', status: 'Maintenance Rutin' }))
+            ];
+            
+            maintenanceList.innerHTML = allMaintenanceItems.map(item => `
+                <div class="maintenance-item p-4 border rounded-lg ${item.priority === 'urgent' ? 'border-red-300 bg-red-50' : item.priority === 'scheduled' ? 'border-yellow-300 bg-yellow-50' : 'border-green-300 bg-green-50'}">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="font-semibold text-gray-800">${item.name}</div>
+                            <div class="text-sm text-gray-600">Kode: ${item.code} | Lokasi: ${item.location}</div>
+                            <div class="text-sm">
+                                <span class="badge badge-${item.priority === 'urgent' ? 'danger' : item.priority === 'scheduled' ? 'warning' : 'success'}">${item.status}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium ${item.priority === 'urgent' ? 'text-red-600' : item.priority === 'scheduled' ? 'text-yellow-600' : 'text-green-600'}">
+                                ${item.condition}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                ${item.priority === 'urgent' ? '⚠️ Prioritas Tinggi' : item.priority === 'scheduled'
